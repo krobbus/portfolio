@@ -3,7 +3,7 @@ export default function Header({footerRef, projectsRef}: {footerRef: React.RefOb
         <div className="relative space-y-10 py-6">
             <div className="absolute top-[-20px] right-[5%] opacity-15 pointer-events-none select-none animate-pulse">
                 <img 
-                    src="./images/icons/Cloud.png" 
+                    src="/images/icons/Cloud.png" 
                     alt="Cloud" 
                     className="w-72 sm:w-96 h-auto blur-sm" 
                 />
@@ -11,7 +11,7 @@ export default function Header({footerRef, projectsRef}: {footerRef: React.RefOb
 
             <div className="absolute bottom-[30px] left-[20%] opacity-15 pointer-events-none select-none animate-pulse">
                 <img 
-                    src="./images/icons/Cloud.png" 
+                    src="/images/icons/Cloud.png" 
                     alt="Cloud" 
                     className="w-72 sm:w-96 h-auto blur-sm" 
                 />

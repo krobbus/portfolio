@@ -109,7 +109,7 @@ export default function Footer({ footerRef }: { footerRef: React.RefObject<HTMLE
                 {showCloud && (
                     <div className="absolute top-[10%] left-[10px] opacity-15 pointer-events-none select-none animate-pulse">
                         <img 
-                            src="./images/icons/Cloud.png" 
+                            src="/images/icons/Cloud.png" 
                             alt="Cloud" 
                             className="w-72 sm:w-96 h-auto blur-sm"
                         />
