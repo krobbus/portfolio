@@ -3,6 +3,4 @@ Allow: /
 User-agent: Googlebot-Image
 
 Disallow: /images/
-Disallow: /videos/
-
 Sitemap: https://alefjustinloresca.vercel.app/sitemap.xml
