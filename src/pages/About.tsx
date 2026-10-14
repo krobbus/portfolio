@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import LoadingImage from '../LoadingImage';
 
 const stack = [
   {
@@ -27,11 +28,12 @@ export default function About() {
       </header>
 
       <section className="flow-root space-y-4">
-        <img
+        <LoadingImage
           src="/profile.png"
           alt="Alef Justin Loresca"
-          className="float-right ml-5 w-42 sm:w-56 aspect-square object-cover grayscale duration-600 hover:filter-none"
-          draggable="false"
+          wrapperClassName="float-right ml-5 w-42 sm:w-56 aspect-square"
+          className="block w-full h-full aspect-square object-cover grayscale duration-600 hover:filter-none"
+          draggable={false}
         />
 
         <p className="text-justify">

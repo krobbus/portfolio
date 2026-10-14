@@ -1,4 +1,5 @@
 import { projects } from '../ProjectRef';
+import LoadingImage from '../LoadingImage';
 
 function ProjectMedia({ link, src, caption }: { link: string | null; src: string; caption: string }) {
   return (
@@ -11,7 +12,12 @@ function ProjectMedia({ link, src, caption }: { link: string | null; src: string
           aria-label={`View project: ${caption}`}
           className="bg-black group relative block border border-[var(--border)] aspect-video cursor-pointer"
         >
-          <img src={src} alt={caption} className="w-full h-full object-contain" />
+          <LoadingImage
+            src={src}
+            alt={caption}
+            className="block w-full h-full object-contain"
+            wrapperClassName="block w-full h-full"
+          />
           <span className="absolute inset-0 flex items-end justify-end p-3 transition-opacity duration-200 sm:items-center sm:justify-center sm:bg-black/80 sm:p-0 sm:text-white sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">
             <span className="flex items-center gap-2 border border-[var(--muted)] bg-[var(--bg)]/90 px-3 py-1.5 text-xs text-[var(--fg)] sm:bg-transparent sm:px-4 sm:py-2 sm:text-sm sm:text-white">
               View live
@@ -20,8 +26,13 @@ function ProjectMedia({ link, src, caption }: { link: string | null; src: string
           </span>
         </a>
       ) : (
-        <div className="bg-black border border-[var(--border)] aspect-video">
-          <img src={src} alt={caption} className="w-full h-full object-contain" />
+        <div className="bg-black border border-[var(--border)] aspect-video relative">
+          <LoadingImage
+            src={src}
+            alt={caption}
+            className="block w-full h-full object-contain"
+            wrapperClassName="block w-full h-full"
+          />
         </div>
       )}
 
