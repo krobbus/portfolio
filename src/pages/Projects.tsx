@@ -55,23 +55,24 @@ export default function Projects() {
         <section key={project.id} className="space-y-4 border-t border-[var(--border)] pt-8">
           <header className="space-y-1">
             <p className="font-sans text-xs uppercase tracking-wider">{project.id}</p>
-            <p className="font-sans text-xs uppercase tracking-wider text-[var(--muted)]">{project.category}</p>
-
             <h2 className="font-serif text-2xl font-semibold leading-snug">{project.title}</h2>
 
-            {project.link && (
-              <p className="font-sans text-sm">
-                <i className="fa-solid fa-arrow-up-right-from-square mr-2 text-[var(--muted)]"></i>
-                <a
-                  href={project.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline underline-offset-4 duration-200 hover:text-[var(--muted)]"
+            <p className="font-sans text-xs uppercase tracking-wider text-[var(--muted)]">{project.description}</p>
+            <p className="flex flex-wrap items-center gap-2 pt-2 font-sans text-sm text-[var(--muted)]">
+              Built with 
+
+              {project.pills.map((pill, index) => (
+                <span
+                  key={pill}
+                  className="inline-flex items-center rounded-[0.7rem] border border-[var(--border)] bg-[var(--bg)] px-3 py-1.5 text-xs text-[var(--fg)] shadow-sm transition-transform duration-200 hover:-translate-y-0.5"
+                  style={{
+                    transform: `rotate(${index % 2 === 0 ? -2 : 2}deg)`,
+                  }}
                 >
-                  {project.linkText}
-                </a>
-              </p>
-            )}
+                  {pill}
+                </span>
+              ))}
+            </p>
           </header>
 
           <ProjectMedia link={project.link} src={project.src} caption={project.caption} />
@@ -81,10 +82,6 @@ export default function Projects() {
               <li key={i}>{point}</li>
             ))}
           </ul>
-
-          <p className="font-sans text-sm text-[var(--muted)]">
-            Built with {project.pills.join(', ')}.
-          </p>
         </section>
       ))}
     </article>
