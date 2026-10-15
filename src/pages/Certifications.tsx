@@ -1,4 +1,4 @@
-import { certifications } from '../CertificationRef';
+import { certifications } from '../constants/CertificationRef';
 
 export default function Certifications() {
   return (

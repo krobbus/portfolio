@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { certifications } from '../CertificationRef';
-import { projects } from '../ProjectRef';
+import { certifications } from '../constants/CertificationRef';
+import { projects } from '../constants/ProjectRef';
 
 export default function Home() {
   return (

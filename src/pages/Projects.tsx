@@ -1,4 +1,4 @@
-import { projects } from '../ProjectRef';
+import { projects } from '../constants/ProjectRef';
 import LoadingImage from '../LoadingImage';
 
 function ProjectMedia({ link, src, caption }: { link: string | null; src: string; caption: string }) {
