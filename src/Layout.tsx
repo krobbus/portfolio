@@ -75,14 +75,14 @@ export default function Layout() {
   }, [pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)]">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:text-blue-500">
       <nav className="sticky top-0 z-99 bg-[var(--bg)] font-sans border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-5 py-4 flex flex-wrap items-center justify-center sm:justify-between gap-x-6 gap-y-2">
           <Link to="/" className="font-serif font-semibold tracking-tight duration-200 hover:text-[var(--muted)]">
             ALEF JUSTIN LORESCA
           </Link>
 
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+          <div className="flex flex-wrap justify-center items-center gap-x-5 gap-y-1 text-sm">
             {links.map((link) => (
               <NavLink
                 key={link.to}
@@ -90,7 +90,7 @@ export default function Layout() {
                 end={link.to === '/'}
                 className={({ isActive }) =>
                   isActive
-                    ? 'underline underline-offset-4'
+                    ? 'underline underline-offset-6'
                     : 'text-[var(--muted)] duration-200 hover:text-[var(--fg)]'
                 }
               >
