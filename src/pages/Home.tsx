@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { certifications } from '../CertificationRef';
+import { projects } from '../ProjectRef';
 
 export default function Home() {
   return (
@@ -19,34 +21,65 @@ export default function Home() {
         This site collects a short introduction, the stack I work with, selected projects and certifications.
       </p>
 
+      <section
+        aria-label="Quick stats"
+        className="grid grid-cols-3 border-y border-[var(--border)] py-5"
+      >
+        <div className="space-y-1 px-2 text-center sm:px-4">
+          <p className="font-sans text-3xl font-bold">{projects.length}</p>
+          <p className="text-xs uppercase tracking-wider text-[var(--muted)]">Created Projects</p>
+        </div>
+
+        <div className="space-y-1 px-2 text-center sm:px-4">
+          <p className="font-sans text-3xl font-bold">{certifications.length}</p>
+          <p className="text-xs uppercase tracking-wider text-[var(--muted)]">Earned Certificates</p>
+        </div>
+
+        <div className="space-y-1 px-2 text-center sm:px-4">
+          <p className="font-sans text-3xl font-bold">1-2</p>
+          <p className="text-xs uppercase tracking-wider text-[var(--muted)]">Cups of coffee / day</p>
+        </div>
+      </section>
+
       <section className="space-y-3">
         <h2 className="font-serif text-lg font-bold uppercase tracking-wider text-[var(--muted)]">
           Contents
         </h2>
 
-        <ul className="divide-y divide-[var(--border)] border-y border-[var(--border)]">
+        <ul className="divide-y divide-[var(--border)] border-y border-[var(--border)] text-[var(--muted)] ">
           <li>
-            <Link to="/about" className="flex items-center justify-between py-3 hover:underline underline-offset-4">
-              <span>About me and my tech stack</span>
-              <i className="fa-solid fa-arrow-right text-sm text-[var(--muted)]"></i>
+            <Link to="/about" className="group flex items-center justify-between py-3 duration-400 hover:px-4 hover:bg-[var(--muted)]/20">
+              <span className="transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]">
+                About me and my tech stack
+              </span>
+              <i className="fa-solid fa-arrow-right text-sm transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]"></i>
             </Link>
           </li>
+
           <li>
-            <Link to="/projects" className="flex items-center justify-between py-3 hover:underline underline-offset-4">
-              <span>Selected projects</span>
-              <i className="fa-solid fa-arrow-right text-sm text-[var(--muted)]"></i>
+            <Link to="/projects" className="group flex items-center justify-between py-3 duration-400 hover:px-4 hover:bg-[var(--muted)]/20">
+              <span className="transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]">
+                Selected projects
+              </span>
+              <i className="fa-solid fa-arrow-right text-sm transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]"></i>
             </Link>
           </li>
+
           <li>
-            <Link to="/certifications" className="flex items-center justify-between py-3 hover:underline underline-offset-4">
-              <span>Certifications</span>
-              <i className="fa-solid fa-arrow-right text-sm text-[var(--muted)]"></i>
+            <Link to="/certifications" className="group flex items-center justify-between py-3 duration-400 hover:px-4 hover:bg-[var(--muted)]/20">
+              <span className="transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]">
+                Certifications
+              </span>
+              <i className="fa-solid fa-arrow-right text-sm transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]"></i>
             </Link>
           </li>
+
           <li>
-            <Link to="/contact" className="flex items-center justify-between py-3 hover:underline underline-offset-4">
-              <span>Get in touch</span>
-              <i className="fa-solid fa-arrow-right text-sm text-[var(--muted)]"></i>
+            <Link to="/contact" className="group flex items-center justify-between py-3 duration-400 hover:px-4 hover:bg-[var(--muted)]/20">
+              <span className="transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]">
+                Get in touch
+              </span>
+              <i className="fa-solid fa-arrow-right text-sm transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]"></i>
             </Link>
           </li>
         </ul>
