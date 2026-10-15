@@ -281,25 +281,25 @@ export default function Contact() {
         <h2 className="font-serif text-md font-bold uppercase tracking-wider text-[var(--muted)]">Socials</h2>
 
         <ul className="flex flex-wrap items-center gap-4 text-sm">
-          <li className="border-b pb-1">
+          <li className="border-l border-b px-2 pb-1 transition-transform duration-200 hover:-translate-y-0.5">
             <a href="https://github.com/krobbus" target="_blank" rel="noopener noreferrer" className="text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-github w-6"></i>GitHub
             </a>
           </li>
 
-          <li className="border-b pb-1">
+          <li className="border-l border-b px-2 pb-1 transition-transform duration-200 hover:-translate-y-0.5">
             <a href="https://www.linkedin.com/in/alefjustinloresca/" target="_blank" rel="noopener noreferrer" className="text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-linkedin w-6"></i>LinkedIn
             </a>
           </li>
 
-          <li className="border-b pb-1">
+          <li className="border-l border-b px-2 pb-1 transition-transform duration-200 hover:-translate-y-0.5">
             <a href="https://www.instagram.com/ajloresca/" target="_blank" rel="noopener noreferrer" className="text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-square-instagram w-6"></i>Instagram
             </a>
           </li>
           
-          <li className="border-b pb-1">
+          <li className="border-l border-b px-2 pb-1 transition-transform duration-200 hover:-translate-y-0.5">
             <a href="https://m.me/lorescaalef/" target="_blank" rel="noopener noreferrer" className="text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-facebook-messenger w-6"></i>Messenger
             </a>
