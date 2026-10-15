@@ -32,7 +32,7 @@ export default function About() {
           src="/profile.png"
           alt="Alef Justin Loresca"
           wrapperClassName="float-right ml-5 w-42 sm:w-56 aspect-square"
-          className="block w-full h-full aspect-square object-cover grayscale duration-600 hover:filter-none"
+          className="block w-full h-full rounded-full object-cover grayscale duration-200 hover:filter-none"
           draggable={false}
         />
 
