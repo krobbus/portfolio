@@ -44,7 +44,7 @@ export const assets = {
     { src: '/images/forent/forent-payments.png', caption: 'Payment History' },
     { src: '/images/forent/forent-stripe-payment.png', caption: 'Stripe Payment' },
     { src: '/images/forent/forent-payment-successful.png', caption: 'Successful Payment' },
-    { src: '/images/forent/forent-payment-cancel.png', caption: 'Canceled Payment' },
+    { src: '/images/forent/forent-payment-cancel.png', caption: 'Cancelled Payment' },
     { src: '/images/forent/forent-view-profile.png', caption: 'View Profile' },
     { src: '/images/forent/forent-update-profile.png', caption: 'Update Profile' },
   ],
