@@ -36,7 +36,7 @@ export const projects = [
         id: '[Project 04]',
         title: 'An AI-Driven 8-Bit Web Game For Personalized College Program Matching and Career Exploration',
         description: 'Lead Full-Stack Developer, Capstone Project',
-        link: null,
+        link: 'https://ai-driven-8-bit-web-game.vercel.app/',
         slides: assets.eightbit,
         pills: ['React', 'TypeScript', 'PhaserJS', 'Firebase', 'Gemini API'],
         points: [

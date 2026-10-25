@@ -20,13 +20,40 @@ export const assets = {
     { src: '/images/edukatura/edukatura-grading.png', caption: 'Grading' },
   ],
   eightbit: [
+    { src: '/images/8bit/8bit-account-login.png', caption: 'Account Login' },
+    { src: '/images/8bit/8bit-outdoor.png', caption: 'Outdoor Scene' },
+    { src: '/images/8bit/8bit-left-wing.png', caption: 'Left Wing Scene' },
     { src: '/images/8bit/8bit-hallway.png', caption: 'Hallway Scene' },
-    { src: '/images/8bit/8bit-classroom.png', caption: 'Classroom Scene (Quiz Game)' },
-    { src: '/images/8bit/8bit-ranking.png', caption: 'Leaderboard' },
+    { src: '/images/8bit/8bit-right-wing.png', caption: 'Right Wing Scene' },
+
     { src: '/images/8bit/8bit-character-creation.png', caption: 'Character Creation' },
+    { src: '/images/8bit/8bit-preferences-discovery.png', caption: 'Preferences Discovery' },
+    { src: '/images/8bit/8bit-course-selection.png', caption: 'Course Selection' },
+    { src: '/images/8bit/8bit-account-registration.png', caption: 'Account Registration' },
+
     { src: '/images/8bit/8bit-profile.png', caption: 'Player Profile' },
-    { src: '/images/8bit/8bit-preferences.png', caption: 'Specify Preferences' },
-    { src: '/images/8bit/8bit-course.png', caption: 'Selected Course' },
+    { src: '/images/8bit/8bit-view-other-profiles.png', caption: 'View Other Dashboards' },
+    { src: '/images/8bit/8bit-statistics.png', caption: 'Courses Statistics' },
+    { src: '/images/8bit/8bit-skills-and-personality.png', caption: 'Skills & Personality List' },
+    { src: '/images/8bit/8bit-ai-comment-and-actions.png', caption: 'AI Comment and Suggestions, and Account Actions' },
+    
+    
+    { src: '/images/8bit/8bit-assessment-types.png', caption: 'Assessment Types' },
+    { src: '/images/8bit/8bit-course-related-assessment.png', caption: 'Course-Related Assessment' },
+    { src: '/images/8bit/8bit-skill-assessment.png', caption: 'Skill Assessment' },
+    { src: '/images/8bit/8bit-personality-assessment.png', caption: 'Personality Assessment' },
+    { src: '/images/8bit/8bit-answer-animation.png', caption: 'Answer Animation' },
+    { src: '/images/8bit/8bit-explanation-sources.png', caption: 'Explanation Sources' },
+    { src: '/images/8bit/8bit-assessment-result.png', caption: 'Assessment Result' },
+
+    { src: '/images/8bit/8bit-ready-for-evaluation.png', caption: 'Ready for Evaluation' },
+    { src: '/images/8bit/8bit-ai-comment-suggestions-result.png', caption: 'AI Comment Suggestions' },
+    { src: '/images/8bit/8bit-career-report.png', caption: 'Career Report' },
+
+    { src: '/images/8bit/8bit-key-guide.png', caption: 'Key Guide (Top-Left Corner)' },
+    { src: '/images/8bit/8bit-npc-dialogue.png', caption: 'NPC Dialogue' },
+    { src: '/images/8bit/8bit-leaderboard.png', caption: 'Leaderboard' },
+    { src: '/images/8bit/8bit-profile-creation-hint.png', caption: 'Profile Creation Notification' },
   ],
   assetmanagement: [
     { src: '/images/assetmanagement.png', caption: 'Asset Management Overview' },
