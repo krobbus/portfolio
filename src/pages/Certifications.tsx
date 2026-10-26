@@ -10,6 +10,7 @@ export default function Certifications() {
       {certifications.map((slide) => (
         <a
           key={slide.details}
+          data-scroll-bookmark={slide.details}
           href={slide.link}
           target="_blank"
           rel="noopener noreferrer"

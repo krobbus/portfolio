@@ -277,7 +277,7 @@ export default function Contact() {
         <span className="text-sm text-[var(--muted)]">Please don’t include passwords and other sensitive information.</span>
       </form>
 
-      <section className="space-y-3 border-t border-[var(--border)] pt-8">
+      <section data-scroll-bookmark="Socials" className="flex flex-wrap justify-around items-center gap-4 space-y-3 border-t border-[var(--border)] pt-8">
         <h2 className="font-serif text-md font-bold uppercase tracking-wider text-[var(--muted)]">Socials</h2>
 
         <ul className="flex flex-wrap items-center gap-4 text-sm">
