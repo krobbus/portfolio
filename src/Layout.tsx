@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import CustomScrollbar from './CustomScrollbar';
 
 const links = [
   { to: '/', label: 'Home' },
@@ -31,13 +32,32 @@ function CustomCursor() {
     const handlePointerLeave = () => {
       cursor.classList.remove('is-visible', 'is-interactive');
     };
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Element && event.target.closest('[data-custom-grab]')) {
+        cursor.classList.add('is-grabbing');
+      }
+    };
+    const handlePointerEnd = () => {
+      cursor.classList.remove('is-grabbing');
+    };
+    const handleWindowBlur = () => {
+      cursor.classList.remove('is-visible', 'is-interactive', 'is-grabbing');
+    };
 
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerleave', handlePointerLeave);
+    window.addEventListener('pointerdown', handlePointerDown, true);
+    window.addEventListener('pointerup', handlePointerEnd, true);
+    window.addEventListener('pointercancel', handlePointerEnd, true);
+    window.addEventListener('blur', handleWindowBlur);
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerleave', handlePointerLeave);
+      window.removeEventListener('pointerdown', handlePointerDown, true);
+      window.removeEventListener('pointerup', handlePointerEnd, true);
+      window.removeEventListener('pointercancel', handlePointerEnd, true);
+      window.removeEventListener('blur', handleWindowBlur);
     };
   }, []);
 
@@ -45,6 +65,7 @@ function CustomCursor() {
     <div ref={cursorRef} className="custom-cursor" aria-hidden="true">
       <svg viewBox="0 0 24 28">
         <path d="M2 1 21 17h-9l-4 10z" />
+        <path className="grabbing-hand" d="M8 13V7a1.5 1.5 0 0 1 3 0v4-6a1.5 1.5 0 0 1 3 0v6-5a1.5 1.5 0 0 1 3 0v6-3a1.5 1.5 0 0 1 3 0v7c0 4-2.5 7-6.5 7h-1c-2.5 0-4-1-5.5-3l-3-4a1.5 1.5 0 0 1 2.5-1.7L8 16z" />
       </svg>
     </div>
   );
@@ -76,7 +97,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:text-blue-500">
-      <nav className="sticky top-0 z-99 bg-[var(--bg)] font-sans border-b border-[var(--border)]">
+      <nav className="sticky top-0 z-[99] bg-[var(--bg)] font-sans border-b border-[var(--border)]">
         <div className="max-w-4xl mx-auto px-5 py-4 flex flex-wrap items-center justify-center sm:justify-between gap-x-6 gap-y-2">
           <Link to="/" className="font-serif font-semibold tracking-tight duration-200 hover:text-[var(--muted)]">
             ALEF JUSTIN LORESCA
@@ -114,7 +135,7 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="font-sans border-t border-[var(--border)]">
+      <footer className="font-sans bg-[var(--bg)] border-t border-[var(--border)] z-[99]">
         <div className="max-w-4xl mx-auto px-5 py-6 flex flex-wrap items-center justify-between gap-4 text-sm text-[var(--muted)]">
           <span>&copy; 2026 Alef Justin Loresca</span>
 
@@ -135,6 +156,7 @@ export default function Layout() {
         </div>
       </footer>
       <CustomCursor />
+      <CustomScrollbar key={pathname} windowTarget label="Page scroll" className="page-scrollbar" />
     </div>
   );
 }
