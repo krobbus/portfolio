@@ -277,32 +277,38 @@ export default function Contact() {
         <span className="text-sm text-[var(--muted)]">Please don’t include passwords and other sensitive information.</span>
       </form>
 
-      <section data-scroll-bookmark="Socials" className="flex flex-wrap justify-around items-center gap-4 space-y-3 border-t border-[var(--border)] pt-8">
-        <h2 className="font-serif text-md font-bold uppercase tracking-wider text-[var(--muted)]">Socials</h2>
+      <section data-scroll-bookmark="Socials" className="flex flex-col gap-4 space-y-10 border-t border-[var(--border)] pt-8">
+        <header className="space-y-3">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight">SOCIALS</h1>
+        </header>
 
-        <ul className="flex flex-wrap items-center gap-4 text-sm">
-          <li className="border-l border-b px-2 pb-1 transition-transform duration-200 hover:-translate-y-0.5">
+        <ul className="h-[40dvh] grid grid-cols-1 md:grid-cols-2 items-center gap-4 text-sm">
+          <li className="relative border border-[var(--muted)] rounded-md p-4 flex justify-start items-end h-full w-full transition-transform duration-200 hover:-translate-y-0.5 overflow-hidden">
             <a href="https://github.com/krobbus" target="_blank" rel="noopener noreferrer" className="text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-github w-6"></i>GitHub
             </a>
+            <span className="absolute bottom-0 md:bottom-4 right-4 md:left-4 text-[var(--muted)] text-lg md:text-6xl font-serif opacity-10">GITHUB</span>
           </li>
 
-          <li className="border-l border-b px-2 pb-1 transition-transform duration-200 hover:-translate-y-0.5">
+          <li className="relative border border-[var(--muted)] rounded-md p-4 flex justify-start items-end h-full w-full transition-transform duration-200 hover:-translate-y-0.5 overflow-hidden">
             <a href="https://www.linkedin.com/in/alefjustinloresca/" target="_blank" rel="noopener noreferrer" className="text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-linkedin w-6"></i>LinkedIn
             </a>
+            <span className="absolute bottom-0 md:bottom-4 right-4 md:left-4 text-[var(--muted)] text-lg md:text-6xl font-serif opacity-10">LINKEDIN</span>
           </li>
 
-          <li className="border-l border-b px-2 pb-1 transition-transform duration-200 hover:-translate-y-0.5">
+          <li className="relative border border-[var(--muted)] rounded-md p-4 flex justify-start items-end h-full w-full transition-transform duration-200 hover:-translate-y-0.5 overflow-hidden">
             <a href="https://www.instagram.com/ajloresca/" target="_blank" rel="noopener noreferrer" className="text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-square-instagram w-6"></i>Instagram
             </a>
+            <span className="absolute bottom-0 md:bottom-4 right-4 md:left-4 text-[var(--muted)] text-lg md:text-6xl font-serif opacity-10">INSTAGRAM</span>
           </li>
           
-          <li className="border-l border-b px-2 pb-1 transition-transform duration-200 hover:-translate-y-0.5">
+          <li className="relative border border-[var(--muted)] rounded-md p-4 flex justify-start items-end h-full w-full transition-transform duration-200 hover:-translate-y-0.5 overflow-hidden">
             <a href="https://m.me/lorescaalef/" target="_blank" rel="noopener noreferrer" className="text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-facebook-messenger w-6"></i>Messenger
             </a>
+            <span className="absolute bottom-0 md:bottom-4 right-4 md:left-4 text-[var(--muted)] text-lg md:text-6xl font-serif opacity-10">MESSENGER</span>
           </li>
         </ul>
       </section>
