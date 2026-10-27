@@ -10,8 +10,6 @@ export default function Certifications() {
       {certifications.map((slide) => (
         <a
           key={slide.details}
-          data-scroll-bookmark={slide.details}
-          href={slide.link}
           target="_blank"
           rel="noopener noreferrer"
           className="group flex w-full items-center justify-between gap-6 border-b border-[var(--border)] py-6 font-sans text-sm text-[var(--muted)] duration-400 hover:px-4 hover:bg-[var(--muted)]/20 hover:text-[var(--fg)] focus-visible:text-[var(--fg)]"
