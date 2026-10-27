@@ -14,10 +14,25 @@ type ScrollMetrics = {
 
 type Bookmark = {
   id: string;
+  index: number;
   label: string;
   image: string | null;
   top: number;
 };
+
+const BOOKMARK_SELECTOR = '[data-scroll-bookmark]';
+const TALL_SECTION_OFFSET = 96;
+
+function getCenteredScroll(target: HTMLElement) {
+  const rect = target.getBoundingClientRect();
+  const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+  const absoluteTop = rect.top + window.scrollY;
+  const desired = rect.height >= window.innerHeight
+    ? absoluteTop - TALL_SECTION_OFFSET
+    : absoluteTop - (window.innerHeight - rect.height) / 2;
+
+  return Math.min(maxScroll, Math.max(0, desired));
+}
 
 export default function CustomScrollbar({
   label,
@@ -74,16 +89,15 @@ export default function CustomScrollbar({
     if (!windowTarget) return;
 
     const updateBookmarks = () => {
-      const pageHeight = document.documentElement.scrollHeight;
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
       const nextBookmarks = Array.from(
-        document.querySelectorAll<HTMLElement>('[data-scroll-bookmark]')
+        document.querySelectorAll<HTMLElement>(BOOKMARK_SELECTOR)
       ).map((target, index) => ({
         id: `${target.dataset.scrollBookmark}-${index}`,
+        index,
         label: target.dataset.scrollBookmark ?? 'Section',
         image: target.dataset.scrollBookmarkImage ?? null,
-        top: pageHeight > 0
-          ? Math.min(100, Math.max(0, ((target.getBoundingClientRect().top + window.scrollY) / pageHeight) * 100))
-          : 0,
+        top: maxScroll > 0 ? (getCenteredScroll(target) / maxScroll) * 100 : 0,
       }));
 
       setBookmarks(nextBookmarks);
@@ -94,7 +108,7 @@ export default function CustomScrollbar({
     const resizeObserver = new ResizeObserver(updateBookmarks);
     resizeObserver.observe(document.documentElement);
     resizeObserver.observe(document.body);
-    document.querySelectorAll<HTMLElement>('[data-scroll-bookmark]').forEach((target) => {
+    document.querySelectorAll<HTMLElement>(BOOKMARK_SELECTOR).forEach((target) => {
       resizeObserver.observe(target);
     });
 
@@ -119,6 +133,16 @@ export default function CustomScrollbar({
         behavior,
       });
     }
+  };
+
+  const scrollToBookmark = (bookmark: Bookmark) => {
+    const target = document.querySelectorAll<HTMLElement>(BOOKMARK_SELECTOR)[bookmark.index];
+    if (!target) {
+      setScrollProgress(bookmark.top / 100, 'smooth');
+      return;
+    }
+
+    window.scrollTo({ top: getCenteredScroll(target), behavior: 'smooth' });
   };
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -241,7 +265,7 @@ export default function CustomScrollbar({
           type="button"
           data-scroll-bookmark-button
           aria-label={`Scroll to ${bookmark.label}`}
-          onClick={() => setScrollProgress(bookmark.top / 100, 'smooth')}
+          onClick={() => scrollToBookmark(bookmark)}
           onPointerDown={(event) => event.stopPropagation()}
           onPointerEnter={() => setHoveredBookmark(bookmark.id)}
           onPointerLeave={() => setHoveredBookmark(null)}
