@@ -10,6 +10,39 @@ const links = [
   { to: '/contact', label: 'Contact' },
 ];
 
+function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={dark}
+      aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      onClick={onToggle}
+      className="relative flex h-8 w-16 shrink-0 items-center justify-between rounded-full border border-[var(--border)] bg-[var(--muted)]/10 px-1 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+    >
+      <span
+        aria-hidden="true"
+        data-theme-thumb
+        className={`absolute left-1 top-1 size-6 rounded-full bg-[var(--fg)] transition-[transform,background-color] duration-300 ease-out motion-reduce:transition-none ${
+          dark ? 'translate-x-[30px]' : 'translate-x-0'
+        }`}
+      />
+      <span className="relative z-10 flex size-6 items-center justify-center">
+        <i
+          className={`fa-solid fa-sun ${dark ? 'text-[var(--muted)]' : 'text-[var(--bg)]'}`}
+          aria-hidden="true"
+        ></i>
+      </span>
+      <span className="relative z-10 flex size-6 items-center justify-center">
+        <i
+          className={`fa-solid fa-moon ${dark ? 'text-[var(--bg)]' : 'text-[var(--muted)]'}`}
+          aria-hidden="true"
+        ></i>
+      </span>
+    </button>
+  );
+}
+
 function MobileScrollProgress() {
   const [progress, setProgress] = useState(() => {
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
@@ -122,6 +155,7 @@ function CustomCursor() {
 export default function Layout() {
   const { pathname } = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const fadeTimerRef = useRef(0);
 
   const [dark, setDark] = useState(() => {
     try {
@@ -131,6 +165,14 @@ export default function Layout() {
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
+
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    window.clearTimeout(fadeTimerRef.current);
+    root.classList.add('theme-fade');
+    setDark((current) => !current);
+    fadeTimerRef.current = window.setTimeout(() => root.classList.remove('theme-fade'), 500);
+  };
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -179,25 +221,13 @@ export default function Layout() {
               </NavLink>
             ))}
 
-            <button
-              type="button"
-              onClick={() => setDark((d) => !d)}
-              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="text-[var(--muted)] pl-4 duration-200 hover:text-[var(--fg)] cursor-pointer"
-            >
-              <i className={dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'}></i>
-            </button>
+            <div className="pl-2">
+              <ThemeToggle dark={dark} onToggle={toggleTheme} />
+            </div>
           </div>
 
           <div className="flex items-center gap-4 sm:hidden">
-            <button
-              type="button"
-              onClick={() => setDark((d) => !d)}
-              aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="text-[var(--muted)] duration-200 hover:text-[var(--fg)]"
-            >
-              <i className={dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'} aria-hidden="true"></i>
-            </button>
+            <ThemeToggle dark={dark} onToggle={toggleTheme} />
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((open) => !open)}

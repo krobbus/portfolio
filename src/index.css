@@ -36,6 +36,26 @@ body {
 .font-serif { font-family: 'Cormorant Garamond', Georgia, serif; }
 .font-sans { font-family: 'Plus Jakarta Sans', Arial, sans-serif; }
 
+html.theme-fade,
+html.theme-fade body,
+html.theme-fade *:not([data-theme-thumb]) {
+  transition:
+    background-color 400ms ease,
+    color 400ms ease,
+    border-color 400ms ease,
+    fill 400ms ease,
+    stroke 400ms ease,
+    outline-color 400ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.theme-fade,
+  html.theme-fade body,
+  html.theme-fade *:not([data-theme-thumb]) {
+    transition: none;
+  }
+}
+
 .gallery-open .page-scrollbar {
   display: none;
 }
