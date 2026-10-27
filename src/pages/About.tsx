@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import LoadingImage from '../LoadingImage';
+import LoadingImage from '../components/LoadingImage';
 
 const stack = [
   {

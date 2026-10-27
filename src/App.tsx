@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 
-import Layout from './Layout.tsx';
+import Layout from './components/Layout.tsx';
 import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Projects from './pages/Projects.tsx';
