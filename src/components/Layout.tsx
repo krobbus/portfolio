@@ -115,6 +115,29 @@ function CustomCursor() {
     const handlePointerLeave = () => {
       cursor.classList.remove('is-visible', 'is-interactive');
     };
+    const handleGameCursorMessage = (event: MessageEvent<unknown>) => {
+      const gameFrame = document.querySelector<HTMLIFrameElement>('[data-custom-cursor-frame]');
+      if (
+        !gameFrame ||
+        event.source !== gameFrame.contentWindow ||
+        event.origin !== window.location.origin ||
+        typeof event.data !== 'object' ||
+        event.data === null
+      ) {
+        return;
+      }
+
+      const message = event.data as { type?: unknown; x?: unknown; y?: unknown };
+      if (message.type === 'game-cursor-leave') {
+        cursor.classList.remove('is-visible', 'is-interactive');
+      } else if (
+        message.type === 'game-cursor-move' &&
+        typeof message.x === 'number' &&
+        typeof message.y === 'number'
+      ) {
+        cursor.classList.remove('is-visible', 'is-interactive', 'is-grabbing');
+      }
+    };
     const handlePointerDown = (event: PointerEvent) => {
       if (event.target instanceof Element && event.target.closest('[data-custom-grab]')) {
         cursor.classList.add('is-grabbing');
@@ -133,6 +156,7 @@ function CustomCursor() {
     window.addEventListener('pointerup', handlePointerEnd, true);
     window.addEventListener('pointercancel', handlePointerEnd, true);
     window.addEventListener('blur', handleWindowBlur);
+    window.addEventListener('message', handleGameCursorMessage);
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove);
@@ -141,6 +165,7 @@ function CustomCursor() {
       window.removeEventListener('pointerup', handlePointerEnd, true);
       window.removeEventListener('pointercancel', handlePointerEnd, true);
       window.removeEventListener('blur', handleWindowBlur);
+      window.removeEventListener('message', handleGameCursorMessage);
     };
   }, []);
 
