@@ -3,11 +3,11 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import CustomScrollbar from './CustomScrollbar';
 
 const links = [
-  { to: '/', label: 'Home' },
-  { to: '/about', label: 'About' },
-  { to: '/projects', label: 'Projects' },
-  { to: '/certifications', label: 'Certifications' },
-  { to: '/contact', label: 'Contact' },
+  { to: '/', label: 'Home', icon: 'fa-house' },
+  { to: '/about', label: 'About', icon: 'fa-user' },
+  { to: '/projects', label: 'Projects', icon: 'fa-folder-open' },
+  { to: '/certifications', label: 'Certifications', icon: 'fa-award' },
+  { to: '/contact', label: 'Contact', icon: 'fa-envelope' },
 ];
 
 function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
@@ -27,12 +27,14 @@ function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }
           dark ? 'translate-x-[30px]' : 'translate-x-0'
         }`}
       />
+      
       <span className="relative z-10 flex size-6 items-center justify-center">
         <i
           className={`fa-solid fa-sun ${dark ? 'text-[var(--muted)]' : 'text-[var(--bg)]'}`}
           aria-hidden="true"
         ></i>
       </span>
+
       <span className="relative z-10 flex size-6 items-center justify-center">
         <i
           className={`fa-solid fa-moon ${dark ? 'text-[var(--bg)]' : 'text-[var(--muted)]'}`}
@@ -81,7 +83,7 @@ function MobileScrollProgress() {
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(progress * 100)}
-      className="absolute inset-x-0 bottom-0 h-1 bg-[var(--border)]/40 sm:hidden"
+      className="absolute inset-x-0 bottom-0 h-1 bg-[var(--border)]/40 lg:hidden"
     >
       <span
         className="block h-full origin-left bg-[var(--fg)]"
@@ -161,7 +163,8 @@ export default function Layout() {
     try {
       const saved = localStorage.getItem('theme');
       if (saved) return saved === 'dark';
-    } catch {
+    } catch (error) {
+      console.error('Unable to read the saved theme preference', error);
     }
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
@@ -178,7 +181,8 @@ export default function Layout() {
     document.documentElement.classList.toggle('dark', dark);
     try {
       localStorage.setItem('theme', dark ? 'dark' : 'light');
-    } catch {
+    } catch (error) {
+      console.error('Unable to save the theme preference', error);
     }
   }, [dark]);
 
@@ -198,35 +202,48 @@ export default function Layout() {
   }, [isMobileMenuOpen]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--fg)] selection:text-blue-500">
-      <nav className="sticky top-0 z-[99] bg-[var(--bg)] font-sans border-b border-[var(--border)]">
+    <div className="flex min-h-screen flex-col bg-[var(--bg)] text-[var(--fg)] selection:text-blue-500 lg:pl-64">
+      <aside className="fixed inset-y-0 left-0 z-[100] hidden w-64 flex-col border-r border-[var(--border)] bg-[var(--bg)] px-7 py-8 font-sans lg:flex">
+        <Link
+          to="/"
+          className="font-serif text-lg font-semibold leading-tight tracking-tight duration-200 hover:text-[var(--muted)]"
+        >
+          ALEF JUSTIN LORESCA
+        </Link>
+
+        <nav aria-label="Main navigation" className="mt-12 flex flex-col gap-2 text-sm">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.to === '/'}
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-sm px-3 py-2.5 duration-200 ${
+                  isActive
+                    ? 'bg-[var(--muted)]/10 font-semibold text-[var(--fg)]'
+                    : 'text-[var(--muted)] hover:bg-[var(--muted)]/5 hover:text-[var(--fg)]'
+                }`
+              }
+            >
+              <i className={`fa-solid ${link.icon} w-4 text-center`} aria-hidden="true"></i>
+              {link.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="mt-auto flex items-center justify-between border-t border-[var(--border)] pt-6 text-sm text-[var(--muted)]">
+          <span>Appearance</span>
+          <ThemeToggle dark={dark} onToggle={toggleTheme} />
+        </div>
+      </aside>
+
+      <nav aria-label="Main navigation" className="sticky top-0 z-[99] border-b border-[var(--border)] bg-[var(--bg)] font-sans lg:hidden">
         <div className="max-w-4xl mx-auto px-5 py-4 flex items-center justify-between gap-4">
           <Link to="/" className="font-serif font-semibold tracking-tight duration-200 hover:text-[var(--muted)]">
             ALEF JUSTIN LORESCA
           </Link>
 
-          <div className="hidden sm:flex items-center gap-x-5 text-sm">
-            {links.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.to === '/'}
-                className={({ isActive }) =>
-                  isActive
-                    ? 'underline underline-offset-6'
-                    : 'text-[var(--muted)] duration-200 hover:text-[var(--fg)]'
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
-
-            <div className="pl-2">
-              <ThemeToggle dark={dark} onToggle={toggleTheme} />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 sm:hidden">
+          <div className="flex items-center gap-4">
             <ThemeToggle dark={dark} onToggle={toggleTheme} />
             <button
               type="button"
@@ -246,7 +263,7 @@ export default function Layout() {
 
         <div
           id="mobile-navigation"
-          className={`sm:hidden overflow-hidden border-t border-[var(--border)] transition-[max-height,opacity] duration-200 ${
+          className={`overflow-hidden border-t border-[var(--border)] transition-[max-height,opacity] duration-200 ${
             isMobileMenuOpen ? 'max-h-80 opacity-100' : 'max-h-0 border-t-transparent opacity-0'
           }`}
           aria-hidden={!isMobileMenuOpen}
@@ -304,7 +321,7 @@ export default function Layout() {
         key={pathname}
         windowTarget
         label="Page scroll"
-        className="page-scrollbar hidden sm:block"
+        className="page-scrollbar hidden lg:block"
       />
     </div>
   );
