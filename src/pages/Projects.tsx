@@ -86,7 +86,7 @@ function ProjectDetail({ project }: { project: ProjectEntry }) {
         All projects
       </Link>
 
-      <section data-scroll-bookmark={project.title} className="space-y-4">
+      <section className="space-y-4">
         <header className="space-y-1">
           <p className="font-sans text-xs uppercase tracking-wider">{project.id}</p>
 
