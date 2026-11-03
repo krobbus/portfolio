@@ -1,5 +1,6 @@
 import { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import LoadingImage from '../components/LoadingImage';
+import gameHtml from '../components/game.html?raw';
 import { Link } from 'react-router-dom';
 
 const interests = [
@@ -315,7 +316,40 @@ function Playlist() {
   );
 }
 
+function GameLaunchCard({ onStart }: { onStart: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onStart}
+      className="group flex min-h-40 flex-col items-center justify-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg)] p-5 text-center font-sans shadow-sm transition-colors duration-200 hover:bg-[var(--muted)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+    >
+      <span className="flex size-11 items-center justify-center rounded-full bg-[var(--fg)] text-[var(--bg)] transition-transform duration-200 group-hover:scale-105">
+        <i className="fa-solid fa-gamepad" aria-hidden="true"></i>
+      </span>
+      
+      <span>
+        <span className="block text-sm font-semibold text-[var(--fg)]">Take a break</span>
+        <span className="mt-1 block text-xs text-[var(--muted)]">Play a quick game</span>
+      </span>
+    </button>
+  );
+}
+
 export default function About() {
+  const [isGameOpen, setIsGameOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
+
+  useEffect(() => {
+    const desktopQuery = window.matchMedia('(min-width: 1024px)');
+    const updateDesktopState = (event: MediaQueryListEvent) => {
+      setIsDesktop(event.matches);
+      if (!event.matches) setIsGameOpen(false);
+    };
+
+    desktopQuery.addEventListener('change', updateDesktopState);
+    return () => desktopQuery.removeEventListener('change', updateDesktopState);
+  }, []);
+
   return (
     <article className="space-y-10">
       <header className="space-y-3">
@@ -331,7 +365,7 @@ export default function About() {
               src="/profile.png"
               alt="Alef Justin Loresca"
               wrapperClassName="w-full aspect-square"
-              className="block w-full h-full rounded-full object-cover grayscale duration-200 group-hover:filter-none"
+              className="block w-full h-full rounded-full object-cover duration-200 group-hover:filter-none"
               draggable={false}
             />
             <InterestBubbles />
@@ -361,10 +395,30 @@ export default function About() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="font-serif text-xl font-semibold border-b border-[var(--border)] pb-2">
-          MUSIC INTERESTS
-        </h2>
-        <Playlist />
+        {isGameOpen && isDesktop ? (
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setIsGameOpen(false)}
+              className="inline-flex items-center gap-2 text-sm text-[var(--muted)] transition-colors hover:text-[var(--fg)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--fg)]"
+            >
+              <i className="fa-solid fa-arrow-left" aria-hidden="true"></i>
+              Back to music
+            </button>
+
+            <iframe
+              title="Coin collector game"
+              data-custom-cursor-frame
+              srcDoc={gameHtml}
+              className="block aspect-[4/3] w-full rounded-xl border border-[var(--border)] bg-[#111]"
+            />
+          </div>
+        ) : (
+          <div className="grid items-stretch gap-3 lg:grid-cols-[minmax(0,1fr)_12rem]">
+            <Playlist />
+            {isDesktop && <GameLaunchCard onStart={() => setIsGameOpen(true)} />}
+          </div>
+        )}
       </section>
 
       <section className="space-y-6">
