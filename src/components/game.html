@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Simple Phaser JS Game</title>
+        <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script>
+        <style>
+            html, body, #game-container {
+                width: 100%;
+                height: 100%;
+                cursor: none;
+            }
+            #game-container, #game-container * {
+                cursor: none !important;
+            }
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #111;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                overflow: hidden;
+            }
+            #game-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            canvas {
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                image-rendering: pixelated;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="game-container"></div>
+
+        <script>
+            const WIDTH = 800;
+            const HEIGHT = 600;
+            const FRAME_RATE = 4;
+            const MONSTER_KEYS = ['monster-1', 'monster-2', 'monster-3', 'monster-4'];
+            const sendCursorMessage = (message) => {
+                if (window.parent === window || !window.frameElement) return;
+                const frameBounds = window.frameElement.getBoundingClientRect();
+                if (message.type === 'game-cursor-move') {
+                    message.x += frameBounds.left;
+                    message.y += frameBounds.top;
+                }
+                window.parent.postMessage(message, window.location.origin);
+            };
+            document.addEventListener('pointermove', (event) => {
+                sendCursorMessage({
+                    type: 'game-cursor-move',
+                    x: event.clientX,
+                    y: event.clientY
+                });
+            });
+            document.addEventListener('pointerleave', () => {
+                sendCursorMessage({ type: 'game-cursor-leave' });
+            });
+            const config = {
+                type: Phaser.AUTO,
+                parent: 'game-container',
+                width: WIDTH,
+                height: HEIGHT,
+                audio: { noAudio: true },
+                pixelArt: true,
+                backgroundColor: '#171717',
+                scale: {
+                    mode: Phaser.Scale.FIT,
+                    autoCenter: Phaser.Scale.CENTER_BOTH
+                },
+                physics: {
+                    default: 'arcade',
+                    arcade: {
+                        gravity: { y: 0 },
+                        debug: false
+                    }
+                },
+                scene: { preload, create, update }
+            };
+
+            new Phaser.Game(config);
+
+            function preload() {
+                this.load.spritesheet('character-default', '/images/sprites/character-default.png', {
+                    frameWidth: 36,
+                    frameHeight: 36
+                });
+                this.load.spritesheet('character-walking', '/images/sprites/character-walking.png', {
+                    frameWidth: 36,
+                    frameHeight: 36
+                });
+                this.load.spritesheet('monster-1', '/images/sprites/monster-1.png', {
+                    frameWidth: 36,
+                    frameHeight: 36
+                });
+                this.load.spritesheet('monster-2', '/images/sprites/monster-2.png', {
+                    frameWidth: 36,
+                    frameHeight: 36
+                });
+                this.load.spritesheet('monster-3', '/images/sprites/monster-3.png', {
+                    frameWidth: 36,
+                    frameHeight: 36
+                });
+                this.load.spritesheet('monster-4', '/images/sprites/monster-4.png', {
+                    frameWidth: 36,
+                    frameHeight: 36
+                });
+                this.load.spritesheet('coin', '/images/sprites/coin.png', {
+                    frameWidth: 32,
+                    frameHeight: 32
+                });
+            }
+
+            function create() {
+                this.anims.create({
+                    key: 'character-idle',
+                    frames: this.anims.generateFrameNumbers('character-default', { start: 0, end: 1 }),
+                    frameRate: FRAME_RATE,
+                    repeat: -1
+                });
+                this.anims.create({
+                    key: 'character-walk',
+                    frames: this.anims.generateFrameNumbers('character-walking', { start: 0, end: 1 }),
+                    frameRate: FRAME_RATE,
+                    repeat: -1
+                });
+                MONSTER_KEYS.forEach((key) => {
+                    const frameCount = key === 'monster-3' ? 4 : 2;
+                    this.anims.create({
+                        key: `${key}-walk`,
+                        frames: this.anims.generateFrameNumbers(key, { start: 0, end: frameCount - 1 }),
+                        frameRate: FRAME_RATE,
+                        repeat: -1
+                    });
+                });
+                this.anims.create({
+                    key: 'coin-spin',
+                    frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 6 }),
+                    frameRate: FRAME_RATE,
+                    repeat: -1
+                });
+
+                this.physics.world.setBounds(0, 0, WIDTH, HEIGHT);
+                this.player = this.physics.add.sprite(WIDTH / 2, HEIGHT / 2, 'character-default');
+                this.player.setScale(2).setCollideWorldBounds(true).play('character-idle');
+                this.player.body.setSize(20, 26).setOffset(8, 8);
+                this.playerName = this.add.text(this.player.x, this.player.y - 42, 'Alef', {
+                    fontSize: '13px',
+                    color: '#ffffff',
+                    backgroundColor: '#222222',
+                    padding: { x: 5, y: 2 },
+                    fontFamily: 'sans-serif'
+                }).setOrigin(0.5, 1).setDepth(10);
+
+                this.coin = this.physics.add.sprite(
+                    Phaser.Math.Between(64, WIDTH - 64),
+                    Phaser.Math.Between(80, HEIGHT - 64),
+                    'coin'
+                );
+                this.coin.setScale(1.5).play('coin-spin');
+                this.physics.add.overlap(this.player, this.coin, collectCoin, undefined, this);
+
+                this.monsters = this.physics.add.group();
+                this.physics.add.overlap(this.player, this.monsters, hitMonster, undefined, this);
+
+                this.score = 0;
+                this.hearts = 3;
+                this.invulnerableUntil = 0;
+                this.isGameOver = false;
+                this.scoreText = this.add.text(16, 14, 'Coins: 0', {
+                    fontSize: '20px',
+                    color: '#ffffff',
+                    fontFamily: 'sans-serif'
+                }).setScrollFactor(0);
+                this.heartsText = this.add.text(WIDTH - 18, 12, '♥ ♥ ♥', {
+                    fontSize: '24px',
+                    color: '#ff647c',
+                    fontFamily: 'sans-serif'
+                }).setOrigin(1, 0).setScrollFactor(0);
+                this.add.text(WIDTH / 2, HEIGHT - 12, 'Move: WASD / Arrow Keys', {
+                    fontSize: '14px',
+                    color: '#ffffff',
+                    backgroundColor: '#333333',
+                    padding: { x: 10, y: 6 },
+                    fontFamily: 'sans-serif'
+                }).setOrigin(0.5, 1).setScrollFactor(0).setDepth(10);
+
+                const keyboard = this.input.keyboard;
+                this.cursors = keyboard.createCursorKeys();
+                this.wasd = keyboard.addKeys('W,A,S,D');
+                this.input.on('pointerdown', () => {
+                    this.game.canvas.focus();
+                    if (this.isGameOver) this.scene.restart();
+                });
+                this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R).on('down', () => {
+                    if (this.isGameOver) this.scene.restart();
+                });
+
+                this.time.addEvent({
+                    delay: 1800,
+                    callback: () => {
+                        if (!this.isGameOver && this.monsters.countActive(true) < 6) {
+                            spawnMonster(this);
+                        }
+                    },
+                    callbackScope: this,
+                    loop: true
+                });
+                spawnMonster(this);
+            }
+
+            function update() {
+                if (this.isGameOver) return;
+
+                const left = this.cursors.left.isDown || this.wasd.A.isDown;
+                const right = this.cursors.right.isDown || this.wasd.D.isDown;
+                const up = this.cursors.up.isDown || this.wasd.W.isDown;
+                const down = this.cursors.down.isDown || this.wasd.S.isDown;
+                const velocityX = (right ? 1 : 0) - (left ? 1 : 0);
+                const velocityY = (down ? 1 : 0) - (up ? 1 : 0);
+                const moving = velocityX !== 0 || velocityY !== 0;
+
+                this.player.setVelocity(velocityX * 220, velocityY * 220);
+                this.playerName.setPosition(this.player.x, this.player.y - 42);
+                if (velocityX !== 0) this.player.setFlipX(velocityX < 0);
+                this.player.anims.play(moving ? 'character-walk' : 'character-idle', true);
+
+                this.monsters.getChildren().forEach((monster) => {
+                    if (!monster.active) return;
+                    const target = monster.getData('target');
+                    if (Phaser.Math.Distance.Between(monster.x, monster.y, target.x, target.y) < 12) {
+                        monster.setData('target', randomPoint());
+                        this.physics.moveToObject(monster, monster.getData('target'), monster.getData('speed'));
+                    }
+                    if (monster.body.velocity.x !== 0) monster.setFlipX(monster.body.velocity.x < 0);
+                });
+            }
+
+            function randomPoint() {
+                return {
+                    x: Phaser.Math.Between(40, WIDTH - 40),
+                    y: Phaser.Math.Between(48, HEIGHT - 40)
+                };
+            }
+
+            function spawnMonster(scene) {
+                const edge = Phaser.Math.Between(0, 3);
+                const start = [
+                    { x: -40, y: Phaser.Math.Between(40, HEIGHT - 40) },
+                    { x: WIDTH + 40, y: Phaser.Math.Between(40, HEIGHT - 40) },
+                    { x: Phaser.Math.Between(40, WIDTH - 40), y: -40 },
+                    { x: Phaser.Math.Between(40, WIDTH - 40), y: HEIGHT + 40 }
+                ][edge];
+                const key = Phaser.Utils.Array.GetRandom(MONSTER_KEYS);
+                const monster = scene.monsters.create(start.x, start.y, key);
+                const target = randomPoint();
+                const speed = Phaser.Math.Between(55, 95);
+                monster.setScale(2).setData('target', target).setData('speed', speed);
+                monster.body.setSize(24, 24).setOffset(6, 8);
+                monster.play(`${key}-walk`);
+                scene.physics.moveToObject(monster, target, speed);
+                monster.setFlipX(monster.body.velocity.x < 0);
+            }
+
+            function collectCoin(player, coin) {
+                coin.setPosition(
+                    Phaser.Math.Between(48, WIDTH - 48),
+                    Phaser.Math.Between(64, HEIGHT - 48)
+                );
+                this.score += 1;
+                this.scoreText.setText(`Coins: ${this.score}`);
+            }
+
+            function hitMonster() {
+                if (this.isGameOver || this.time.now < this.invulnerableUntil) return;
+
+                this.hearts -= 1;
+                this.heartsText.setText(`${'♥ '.repeat(this.hearts)}${'♡ '.repeat(3 - this.hearts)}`.trim());
+                this.invulnerableUntil = this.time.now + 1200;
+                this.cameras.main.flash(160, 255, 75, 100, false);
+                this.tweens.add({
+                    targets: this.player,
+                    alpha: 0.25,
+                    duration: 120,
+                    yoyo: true,
+                    repeat: 4,
+                    onComplete: () => this.player.setAlpha(1)
+                });
+
+                if (this.hearts === 0) {
+                    this.isGameOver = true;
+                    this.player.setVelocity(0).setTint(0x888888);
+                    this.monsters.setVelocity(0, 0);
+                    this.add.rectangle(WIDTH / 2, HEIGHT / 2, WIDTH, HEIGHT, 0x000000, 0.65);
+                    this.add.text(WIDTH / 2, HEIGHT / 2 - 16, 'GAME OVER', {
+                        fontSize: '42px',
+                        color: '#ffffff',
+                        fontFamily: 'sans-serif',
+                        fontStyle: 'bold'
+                    }).setOrigin(0.5);
+                    this.add.text(WIDTH / 2, HEIGHT / 2 + 32, 'Click or press R to play again', {
+                        fontSize: '18px',
+                        color: '#dddddd',
+                        fontFamily: 'sans-serif'
+                    }).setOrigin(0.5);
+                }
+            }
+        </script>
+    </body>
+</html>
