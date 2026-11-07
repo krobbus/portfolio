@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import CustomScrollbar from './CustomScrollbar';
 
 const links = [
@@ -179,7 +179,27 @@ function CustomCursor() {
   );
 }
 
+function GameLaunchCard({ onStart }: { onStart: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onStart}
+      className="w-full group flex flex-col items-center justify-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg)] p-5 text-center font-sans shadow-sm transition-colors duration-200 hover:bg-[var(--muted)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+    >
+      <span className="flex size-8 items-center justify-center rounded-full bg-[var(--fg)] text-[var(--bg)] transition-transform duration-200 group-hover:scale-105">
+        <i className="fa-solid fa-gamepad" aria-hidden="true"></i>
+      </span>
+      
+      <span>
+        <span className="block text-sm font-semibold text-[var(--fg)]">Take a break</span>
+        <span className="mt-1 block text-xs text-[var(--muted)]">Play a quick game</span>
+      </span>
+    </button>
+  );
+}
+
 export default function Layout() {
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const fadeTimerRef = useRef(0);
@@ -236,24 +256,28 @@ export default function Layout() {
           ALEF JUSTIN LORESCA
         </Link>
 
-        <nav aria-label="Main navigation" className="mt-12 flex flex-col gap-2 text-sm">
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.to === '/'}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-sm px-3 py-2.5 duration-200 ${
-                  isActive
-                    ? 'bg-[var(--muted)]/10 font-semibold text-[var(--fg)]'
-                    : 'text-[var(--muted)] hover:bg-[var(--muted)]/5 hover:text-[var(--fg)]'
-                }`
-              }
-            >
-              <i className={`fa-solid ${link.icon} w-4 text-center`} aria-hidden="true"></i>
-              {link.label}
-            </NavLink>
-          ))}
+        <nav aria-label="Main navigation" className="mt-12 mb-4 h-full flex flex-col justify-between gap-2">
+          <ul className="flex flex-col gap-2 text-sm">
+            {links.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.to === '/'}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-sm px-3 py-2.5 duration-200 ${
+                    isActive
+                      ? 'bg-[var(--muted)]/10 font-semibold text-[var(--fg)]'
+                      : 'text-[var(--muted)] hover:bg-[var(--muted)]/5 hover:text-[var(--fg)]'
+                  }`
+                }
+              >
+                <i className={`fa-solid ${link.icon} w-4 text-center`} aria-hidden="true"></i>
+                {link.label}
+              </NavLink>
+            ))}
+          </ul>
+
+          <GameLaunchCard onStart={() => navigate("/game")} />
         </nav>
 
         <div className="mt-auto flex items-center justify-between border-t border-[var(--border)] pt-6 text-sm text-[var(--muted)]">
@@ -270,6 +294,7 @@ export default function Layout() {
 
           <div className="flex items-center gap-4">
             <ThemeToggle dark={dark} onToggle={toggleTheme} />
+
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((open) => !open)}
@@ -329,18 +354,22 @@ export default function Layout() {
             <a href="https://github.com/krobbus" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-github text-lg"></i>
             </a>
+
             <a href="https://www.linkedin.com/in/alefjustinloresca/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-linkedin text-lg"></i>
             </a>
+
             <a href="https://www.instagram.com/ajloresca/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-square-instagram text-lg"></i>
             </a>
+
             <a href="https://m.me/lorescaalef/" target="_blank" rel="noopener noreferrer" aria-label="Messenger" className="duration-200 hover:text-[var(--fg)]">
               <i className="fa-brands fa-facebook-messenger text-lg"></i>
             </a>
           </div>
         </div>
       </footer>
+
       <CustomCursor />
       <CustomScrollbar
         key={pathname}

@@ -267,7 +267,7 @@ export default function Contact() {
             <button
               type="submit"
               disabled={sending}
-              className="flex justify-center items-center gap-2 text-md border border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] px-5 py-2 transition-colors duration-200 hover:bg-[var(--bg)] hover:text-[var(--fg)] disabled:opacity-50 cursor-pointer"
+              className="flex justify-center items-center gap-2 text-sm border border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)] px-5 py-2 transition-colors duration-200 hover:bg-[var(--bg)] hover:text-[var(--fg)] disabled:opacity-50 cursor-pointer"
             >
               <i className="fa-solid fa-paper-plane"></i>
               {sending ? 'Sending...' : 'Send message'}
