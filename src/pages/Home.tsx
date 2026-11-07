@@ -175,32 +175,32 @@ export default function Home() {
           ALEF JUSTIN LORESCA
         </h1>
 
-        <p className="font-sans text-xl text-[var(--muted)]">
+        <p className="font-sans text-xl text-[var(--muted)] tracking-wider">
           AI Full Stack Developer, where I enjoy turning complex projects into intuitive and customer-focused experience.
         </p>
       </header>
 
-      <p className="font-sans">
+      <p className="font-sans tracking-widest">
         I build modern web applications with React, TypeScript, Express.js, Tailwind CSS, PostgreSQL and MongoDB.
         This site collects a short introduction, the stack I work with, selected projects and certifications.
       </p>
 
       <section
         aria-label="Quick stats"
-        className="grid grid-cols-3 border-y border-[var(--border)] py-5"
+        className="my-16 grid grid-cols-3 border-y border-[var(--border)] py-4"
       >
         <div className="space-y-1 px-2 text-center sm:px-4">
-          <p className="font-sans text-3xl font-bold">{projects.length}</p>
+          <p className="font-sans text-2xl font-bold">{projects.length}</p>
           <p className="text-xs uppercase tracking-wider text-[var(--muted)]">Created Projects</p>
         </div>
 
         <div className="space-y-1 px-2 text-center sm:px-4">
-          <p className="font-sans text-3xl font-bold">{certifications.length}</p>
+          <p className="font-sans text-2xl font-bold">{certifications.length}</p>
           <p className="text-xs uppercase tracking-wider text-[var(--muted)]">Earned Certificates</p>
         </div>
 
         <div className="space-y-1 px-2 text-center sm:px-4">
-          <p className="font-sans text-3xl font-bold">1-2</p>
+          <p className="font-sans text-2xl font-bold">1-2</p>
           <p className="text-xs uppercase tracking-wider text-[var(--muted)]">Cups of coffee / day</p>
         </div>
 
