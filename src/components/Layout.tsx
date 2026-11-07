@@ -7,6 +7,7 @@ const links = [
   { to: '/about', label: 'About', icon: 'fa-user' },
   { to: '/projects', label: 'Projects', icon: 'fa-folder-open' },
   { to: '/certifications', label: 'Certifications', icon: 'fa-award' },
+  { to: '/services', label: 'Services', icon: 'fa-briefcase' },
   { to: '/contact', label: 'Contact', icon: 'fa-envelope' },
 ];
 

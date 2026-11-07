@@ -6,6 +6,7 @@ import Home from './pages/Home.tsx';
 import About from './pages/About.tsx';
 import Projects from './pages/Projects.tsx';
 import Certifications from './pages/Certifications.tsx';
+import Services from './pages/Services.tsx';
 import Contact from './pages/Contact.tsx';
 import Game from './pages/Game.tsx';
 import NotFound from './pages/NotFound.tsx';
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/certifications" element={<Certifications />} />
+          <Route path="/services" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/game" element={<Game />} />
           <Route path="*" element={<NotFound />} />
