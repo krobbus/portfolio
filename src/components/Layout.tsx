@@ -343,7 +343,7 @@ export default function Layout() {
         <MobileScrollProgress />
       </nav>
 
-      <main className="flex-1 w-full max-w-4xl mx-auto px-5 py-12 font-sans text-[17px] leading-relaxed">
+      <main className="flex-1 w-full max-w-5xl mx-auto px-5 py-12 font-sans text-[17px] leading-relaxed">
         <Outlet />
       </main>
 
