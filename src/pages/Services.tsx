@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
 
-type Template = {
+type Variant = {
   id: string;
   name: string;
   bestFor: string;
   coreGoal: string;
+  price: number;
 };
 
 type Tier = {
@@ -16,9 +17,11 @@ type Tier = {
   negotiable?: boolean;
   timeline: string;
   bestFor: string;
-  coreGoal?: string;
+  coreGoal: string;
   benefits: string[];
-  templates?: Template[];
+  variantLabel?: string;
+  variants?: Variant[];
+  hasSystems?: boolean;
 };
 
 type AddOn = {
@@ -27,7 +30,7 @@ type AddOn = {
   price: number;
   monthly?: boolean;
   description: string;
-  other?: boolean;
+  custom?: boolean;
 };
 
 type System = {
@@ -35,7 +38,7 @@ type System = {
   name: string;
   price: number;
   description: string;
-  other?: boolean;
+  custom?: boolean;
 };
 
 const tiers: Tier[] = [
@@ -43,41 +46,47 @@ const tiers: Tier[] = [
     id: 'tier-1',
     name: 'Template-Based Landing Page',
     label: 'Tier 1',
-    price: 65,
+    price: 79,
     timeline: '1 to 3 business days',
     bestFor: 'Those who need a high-converting site deployed fast.',
+    coreGoal: 'A polished, ready-to-launch site that turns visitors into customers.',
     benefits: [
       'Custom-styled, clean and modern UI',
       'High-performance, fully mobile responsive, and speed optimization',
       'Search Engine Optimization (SEO) optimized metadata structure for better search visibility',
       'Built-in booking/contact form linked straight to your email',
-      'Social media links direct chat integration',
+      'Social media links and direct chat integration',
       'Fast turnaround with a ready-to-launch structure',
     ],
-    templates: [
+    variantLabel: 'Available templates',
+    variants: [
       {
         id: 'local',
         name: 'The Local Service Business',
         bestFor: 'Cleaning services, plumbing, repair shops, dental clinics, salons, or contractors.',
         coreGoal: 'Drive phone calls, instant quote requests, or calendar appointments.',
+        price: 0,
       },
       {
         id: 'ecommerce',
         name: 'The E-Commerce & Product Showcase',
         bestFor: 'Independent clothing brands, boutique food products, artisan crafts, or physical gadgets.',
         coreGoal: 'Direct product purchase, add-to-cart conversions, and visual storytelling.',
+        price: 0,
       },
       {
         id: 'creator',
         name: 'The Digital Creator, Coach, or SaaS',
         bestFor: 'Course creators, fitness coaches, consultants, or B2B software tools.',
         coreGoal: 'Lead capture (email list building), webinar signups, or software free trials.',
+        price: 0,
       },
       {
         id: 'portfolio',
         name: 'The Portfolio & Creative Agency',
         bestFor: 'Graphic designers, videographers, architecture firms, or creative freelancers.',
         coreGoal: 'Showcasing past work, establishing elite aesthetic taste, and booking discovery calls.',
+        price: 0,
       },
     ],
   },
@@ -85,9 +94,9 @@ const tiers: Tier[] = [
     id: 'tier-2',
     name: 'Non-Templated Landing Page',
     label: 'Tier 2',
-    price: 120,
+    price: 119,
     negotiable: true,
-    timeline: '7 to 10 business days',
+    timeline: '3 to 7 business days',
     bestFor:
       'Brands that need a totally unique layout, custom animations, brand-specific design systems, or specialized workflows.',
     coreGoal: 'A distinctive, brand-defining web presence that stands apart from template sites.',
@@ -99,23 +108,135 @@ const tiers: Tier[] = [
       'Priority support and 1 month of minor tweaks post-launch',
     ],
   },
+  {
+    id: 'tier-3',
+    name: 'Web Systems & Applications',
+    label: 'Tier 3',
+    price: 249,
+    negotiable: true,
+    timeline: '7 to 14 business days',
+    bestFor:
+      'Businesses and teams that need working software: dashboards, stores, internal tools, or customer-facing platforms.',
+    coreGoal: 'Replace manual, scattered workflows with a secure, reliable system built around how you operate.',
+    benefits: [
+      'Full-stack architecture with a database, API, and authentication tailored to your workflow',
+      'Responsive, accessible interface built with modern React and TypeScript',
+      'Role-based access control for admins, staff, and customers',
+      'Deployment to production with environment and security configuration',
+      'Clear documentation and a handover walkthrough',
+      'Priority support and 1 month of minor fixes post-launch',
+    ],
+    variantLabel: 'Application types',
+    variants: [
+      {
+        id: 'spa',
+        name: 'Single-Page Application (SPA)',
+        bestFor: 'Dashboards, trackers, calculators, and tools that benefit from instant, app-like interaction.',
+        coreGoal: 'A fast, fluid experience where users work without full page reloads.',
+        price: 0,
+      },
+      {
+        id: 'mpa',
+        name: 'Multi-Page Application',
+        bestFor: 'Content-rich platforms, marketplaces, and portals with many distinct sections and routes.',
+        coreGoal: 'Clear structure, shareable pages, and strong search visibility across a larger product.',
+        price: 50,
+      },
+      {
+        id: 'pwa',
+        name: 'Progressive Web App (PWA)',
+        bestFor: 'Teams and customers who need an installable, mobile-friendly app with offline-ready behavior.',
+        coreGoal: 'An app-like experience on any device without going through an app store.',
+        price: 100,
+      },
+    ],
+    hasSystems: true,
+  },
 ];
 
 const addOns: AddOn[] = [
-    { id: 'care', name: 'Monthly Care Plan', price: 20, monthly: true, description: 'Security updates, uptime monitoring, minor edits' },
-    { id: 'branding', name: 'Logo & Brand Color Palette Alignment', price: 30, description: 'Consistent visual identity' },
-    { id: 'newsletter', name: 'Email Newsletter Integration', price: 20, description: 'Mailchimp / Resend setup' },
-    { id: 'booking', name: 'Appointment & Event Booking Calendar', price: 45, description: 'Let clients schedule directly' },
-    { id: 'addons', name: 'Request Other Add-Ons', price: 0, other: true, description: 'Request other add-ons based on your business/service needs' },
+  {
+    id: 'care',
+    name: 'Monthly Care Plan',
+    price: 20,
+    monthly: true,
+    description:
+      'Security updates, uptime monitoring, performance optimization, and minor content edits to keep your site running smoothly',
+  },
+  {
+    id: 'branding',
+    name: 'Logo & Brand Color Palette Alignment',
+    price: 30,
+    description:
+      'Consistent visual identity styling, typography pairing, custom color schemes, and brand asset integration',
+  },
+  {
+    id: 'booking',
+    name: 'Appointment & Event Booking Calendar',
+    price: 45,
+    description:
+      'Interactive scheduling widgets, direct calendar synchronization, automated client reminders, and time-slot management',
+  },
+  {
+    id: 'analytics',
+    name: 'Analytics & Conversion Tracking',
+    price: 25,
+    description:
+      'Privacy-friendly analytics, event and goal tracking, and a simple report so you can see what is working',
+  },
+  {
+    id: 'multilingual',
+    name: 'Multi-Language Support',
+    price: 40,
+    description:
+      'Language switcher with translated content structure for up to two additional languages (translations provided by you)',
+  },
+  {
+    id: 'other-addons',
+    name: 'Request Other Add-Ons',
+    price: 0,
+    custom: true,
+    description:
+      'Request custom add-ons tailored specifically to your unique business requirements and operational workflows',
+  },
 ];
 
 const systems: System[] = [
-    { id: 'calculator', name: 'Interactive Pricing Calculator', price: 50, description: 'Cost estimator for your visitors' },
-    { id: 'directory', name: 'Real-Time Search & Filtering Directory', price: 60, description: 'Searchable, filterable listings' },
-    { id: 'shop', name: 'E-Commerce Catalog & Cart System', price: 90, description: 'Full shop experience' },
-    { id: 'portal', name: 'Client Dashboard / Portal Hub', price: 150, description: 'A private space for your clients' },
-    { id: 'systems', name: 'Request Other Systems', price: 0, other: true, description: 'Request other functional system based on your business/service needs' },
-]
+  {
+    id: 'project',
+    name: 'Project & Work Management',
+    price: 60,
+    description: 'Kanban boards, issue tracking, task assignment, and documentation',
+  },
+  {
+    id: 'ecommerce',
+    name: 'E-Commerce & Marketplaces',
+    price: 90,
+    description:
+      'Storefront catalogs, checkouts, merchant admin panels, two-sided marketplaces, payment integrations and processing management, financial reporting',
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise & Business Operations',
+    price: 150,
+    description:
+      'Customer relationship management (CRM), sales pipelines, lead tracking, customer support ticketing, and role-based authentication (RBAC) systems',
+  },
+  {
+    id: 'learning',
+    name: 'Learning & Content Platforms',
+    price: 120,
+    description: 'Course catalogs, enrollment, quizzes and assignments, grading workflows, and progress tracking',
+  },
+  {
+    id: 'other-systems',
+    name: 'Request Other Systems',
+    price: 0,
+    custom: true,
+    description:
+      'Request a custom system tailored specifically to your unique business requirements and operational workflows',
+  },
+];
 
 const formatPrice = (value: number) => `$${value.toLocaleString('en-US')}`;
 
@@ -127,13 +248,89 @@ const pillClass = (active: boolean) =>
   }`;
 
 const cardClass = (active: boolean) =>
-  `w-full flex flex-col cursor-pointer gap-2 border p-4 text-left text-sm transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)] ${
+  `flex w-full cursor-pointer flex-col gap-2 border p-4 text-left text-sm transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)] ${
     active
       ? 'border-[var(--fg)] bg-[var(--fg)] text-[var(--bg)]'
       : 'border-[var(--border)] bg-[var(--bg)] text-[var(--muted)] hover:border-[var(--fg)] hover:text-[var(--fg)]'
   }`;
 
-function SummaryDialog({ tier, template, selectedAddOns, selectedSystems, oneTime, monthly, onClose } : { tier: Tier; template: Template | undefined; selectedAddOns: AddOn[]; selectedSystems: System[]; oneTime: number; monthly: number; onClose: () => void }) {
+const sectionTitleClass = 'text-sm font-semibold uppercase tracking-wider text-[var(--muted)]';
+
+function PriceTag({ price, monthly = false, custom = false }: { price: number; monthly?: boolean; custom?: boolean }) {
+  if (custom) return <span className="shrink-0 text-xs opacity-80">Quote</span>;
+  if (price === 0) return null;
+  return (
+    <span className="shrink-0">
+      +{formatPrice(price)}
+      {monthly ? '/mo' : ''}
+    </span>
+  );
+}
+
+function LineItems({
+  tier,
+  variant,
+  selectedAddOns,
+  selectedSystems,
+}: {
+  tier: Tier;
+  variant: Variant | undefined;
+  selectedAddOns: AddOn[];
+  selectedSystems: System[];
+}) {
+  return (
+    <>
+      <div className="flex items-start justify-between gap-4">
+        <span>
+          {tier.label}: {tier.name}
+          {variant && <span className="block text-xs text-[var(--muted)]">{variant.name}</span>}
+        </span>
+        <span className="shrink-0">{formatPrice(tier.price)}</span>
+      </div>
+
+      {variant && variant.price > 0 && (
+        <div className="flex items-start justify-between gap-4 text-[var(--muted)]">
+          <span>{variant.name}</span>
+          <PriceTag price={variant.price} />
+        </div>
+      )}
+
+      {selectedSystems.map((item) => (
+        <div key={item.id} className="flex items-start justify-between gap-4 text-[var(--muted)]">
+          <span>{item.name}</span>
+          <PriceTag price={item.price} custom={item.custom} />
+        </div>
+      ))}
+
+      {selectedAddOns.map((item) => (
+        <div key={item.id} className="flex items-start justify-between gap-4 text-[var(--muted)]">
+          <span>{item.name}</span>
+          <PriceTag price={item.price} monthly={item.monthly} custom={item.custom} />
+        </div>
+      ))}
+    </>
+  );
+}
+
+function SummaryDialog({
+  tier,
+  variant,
+  selectedAddOns,
+  selectedSystems,
+  oneTime,
+  monthly,
+  hasCustom,
+  onClose,
+}: {
+  tier: Tier;
+  variant: Variant | undefined;
+  selectedAddOns: AddOn[];
+  selectedSystems: System[];
+  oneTime: number;
+  monthly: number;
+  hasCustom: boolean;
+  onClose: () => void;
+}) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -154,17 +351,23 @@ function SummaryDialog({ tier, template, selectedAddOns, selectedSystems, oneTim
     };
   }, [onClose]);
 
+  const describe = (item: { name: string; price: number; custom?: boolean }, monthlyItem = false) =>
+    item.custom ? `${item.name} (custom quote)` : `${item.name} (+${formatPrice(item.price)}${monthlyItem ? '/month' : ''})`;
+
   const summaryText = [
     `Service: ${tier.label} - ${tier.name}`,
-    template ? `Template: ${template.name}` : null,
+    variant ? `${tier.variantLabel === 'Application types' ? 'Application type' : 'Template'}: ${variant.name}${variant.price > 0 ? ` (+${formatPrice(variant.price)})` : ''}` : null,
     `Base price: ${formatPrice(tier.price)}${tier.negotiable ? ' (starting, negotiable)' : ' (starting)'}`,
     `Timeline: ${tier.timeline}`,
+    tier.hasSystems
+      ? selectedSystems.length
+        ? `Systems: ${selectedSystems.map((item) => describe(item)).join(', ')}`
+        : 'Systems: None'
+      : null,
     selectedAddOns.length
-      ? `Add-ons: ${selectedAddOns
-          .map((item) => `${item.name} (+${formatPrice(item.price)}${item.monthly ? '/month' : ''})`)
-          .join(', ')}`
+      ? `Add-ons: ${selectedAddOns.map((item) => describe(item, item.monthly)).join(', ')}`
       : 'Add-ons: None',
-    `Estimated one-time total: ${formatPrice(oneTime)}`,
+    `Estimated one-time total: ${formatPrice(oneTime)}${hasCustom ? ' (excluding custom requests)' : ''}`,
     monthly > 0 ? `Recurring: ${formatPrice(monthly)}/month` : null,
   ]
     .filter(Boolean)
@@ -227,37 +430,7 @@ function SummaryDialog({ tier, template, selectedAddOns, selectedSystems, oneTim
         </header>
 
         <div className="space-y-3 border-y border-[var(--border)] py-4 text-sm">
-          <div className="flex items-start justify-between gap-4">
-            <span>
-              {tier.label}: {tier.name}
-              {template && <span className="block text-xs text-[var(--muted)]">{template.name}</span>}
-            </span>
-            <span className="shrink-0">{formatPrice(tier.price)}</span>
-          </div>
-
-          {selectedAddOns.map((item) => (
-            <div key={item.id} className="flex items-start justify-between gap-4 text-[var(--muted)]">
-              <span>{item.name}</span>
-                {item.price != 0 ? (
-                    <span className="shrink-0">
-                        +{formatPrice(item.price)}
-                        {item.monthly ? '/mo' : ''}
-                    </span>
-                ) : null}
-            </div>
-          ))}
-
-          {selectedSystems.map((item) => (
-            <div key={item.id} className="flex items-start justify-between gap-4 text-[var(--muted)]">
-              <span>{item.name}</span>
-                {item.price != 0 ? (
-                    <span className="shrink-0">
-                        +{formatPrice(item.price)}
-                    </span>
-                ) : null}
-            </div>
-          ))}
-
+          <LineItems tier={tier} variant={variant} selectedAddOns={selectedAddOns} selectedSystems={selectedSystems} />
 
           <div className="flex items-center justify-between gap-4 border-t border-[var(--border)] pt-3 text-base font-semibold">
             <span>One-time total</span>
@@ -274,6 +447,7 @@ function SummaryDialog({ tier, template, selectedAddOns, selectedSystems, oneTim
           <p className="text-xs text-[var(--muted)]">
             Timeline: {tier.timeline}.{' '}
             {tier.negotiable ? 'Starting price, negotiable.' : 'Starting price, final quote confirmed after we talk.'}
+            {hasCustom && ' Custom requests are quoted separately.'}
           </p>
         </div>
 
@@ -337,26 +511,35 @@ function SummaryDialog({ tier, template, selectedAddOns, selectedSystems, oneTim
 
 export default function Services() {
   const [selectedTierId, setSelectedTierId] = useState(tiers[0].id);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>(tiers[0].templates![0].id);
+  const [selectedVariantId, setSelectedVariantId] = useState<string | undefined>(tiers[0].variants?.[0].id);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
   const [selectedSystemIds, setSelectedSystemIds] = useState<string[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const selectedTier = tiers.find((tier) => tier.id === selectedTierId) ?? tiers[0];
-  const selectedTemplate = selectedTier.templates?.find((template) => template.id === selectedTemplateId);
+  const selectedVariant = selectedTier.variants?.find((variant) => variant.id === selectedVariantId);
+
   const selectedAddOns = useMemo(
     () => addOns.filter((item) => selectedAddOnIds.includes(item.id)),
     [selectedAddOnIds]
   );
 
   const selectedSystems = useMemo(
-    () => systems.filter((item) => selectedSystemIds.includes(item.id)),
-    [selectedSystemIds]
+    () => (selectedTier.hasSystems ? systems.filter((item) => selectedSystemIds.includes(item.id)) : []),
+    [selectedSystemIds, selectedTier.hasSystems]
   );
 
   const oneTime =
-    selectedTier.price + selectedAddOns.filter((item) => !item.monthly).reduce((sum, item) => sum + item.price, 0);
+    selectedTier.price +
+    (selectedVariant?.price ?? 0) +
+    selectedSystems.reduce((sum, item) => sum + item.price, 0) +
+    selectedAddOns.filter((item) => !item.monthly).reduce((sum, item) => sum + item.price, 0);
+
   const monthly = selectedAddOns.filter((item) => item.monthly).reduce((sum, item) => sum + item.price, 0);
+
+  const hasCustom = selectedAddOns.some((item) => item.custom) || selectedSystems.some((item) => item.custom);
+
+  const closeDialog = useCallback(() => setDialogOpen(false), []);
 
   const toggleAddOn = (id: string) => {
     setSelectedAddOnIds((current) =>
@@ -372,7 +555,8 @@ export default function Services() {
 
   const chooseTier = (tier: Tier) => {
     setSelectedTierId(tier.id);
-    if (tier.templates) setSelectedTemplateId(tier.templates[0].id);
+    setSelectedVariantId(tier.variants?.[0].id);
+    if (!tier.hasSystems) setSelectedSystemIds([]);
   };
 
   return (
@@ -395,9 +579,9 @@ export default function Services() {
 
           <div className="space-y-6 font-sans">
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">Service tiers</h3>
+              <h3 className={sectionTitleClass}>Service tiers</h3>
 
-              <div className="w-full flex flex-wrap gap-2 tracking-wider font-bold" role="radiogroup" aria-label="Service tiers">
+              <div className="grid gap-2 font-bold tracking-wider" role="radiogroup" aria-label="Service tiers">
                 {tiers.map((tier) => (
                   <button
                     key={tier.id}
@@ -407,44 +591,69 @@ export default function Services() {
                     onClick={() => chooseTier(tier)}
                     className={cardClass(selectedTier.id === tier.id)}
                   >
-                    <div className="w-full flex justify-between gap-2">
+                    <div className="flex w-full justify-between gap-2">
                       <span className="text-xs uppercase tracking-wider opacity-70">{tier.label}</span>
-                      <span className="opacity-70">{formatPrice(tier.price)}</span>
+                      {tier.negotiable ? <span className="text-xs uppercase tracking-wider opacity-70">Negotiable</span> : null}
+                      <span className="opacity-70">From {formatPrice(tier.price)}</span>
                     </div>
-                    
+
                     {tier.name}
                   </button>
                 ))}
               </div>
             </div>
 
-            {selectedTier.templates && (
+            {selectedTier.variants && (
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
-                  Available templates
-                </h3>
+                <h3 className={sectionTitleClass}>{selectedTier.variantLabel}</h3>
 
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Available templates">
-                  {selectedTier.templates.map((template) => (
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={selectedTier.variantLabel}>
+                  {selectedTier.variants.map((variant) => (
                     <button
-                      key={template.id}
+                      key={variant.id}
                       type="button"
                       role="radio"
-                      aria-checked={selectedTemplate?.id === template.id}
-                      onClick={() => setSelectedTemplateId(template.id)}
-                      className={pillClass(selectedTemplate?.id === template.id)}
+                      aria-checked={selectedVariant?.id === variant.id}
+                      onClick={() => setSelectedVariantId(variant.id)}
+                      className={pillClass(selectedVariant?.id === variant.id)}
                     >
-                      {template.name}
+                      {variant.name}
+                      <PriceTag price={variant.price} />
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
+            {selectedTier.hasSystems && (
+              <div className="space-y-3">
+                <h3 className={sectionTitleClass}>Interactive systems</h3>
+
+                <div className="flex flex-wrap gap-2" role="group" aria-label="Interactive systems">
+                  {systems.map((item) => {
+                    const active = selectedSystemIds.includes(item.id);
+
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        aria-pressed={active}
+                        title={item.description}
+                        onClick={() => toggleSystem(item.id)}
+                        className={pillClass(active)}
+                      >
+                        <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
+                        {item.name}
+                        <PriceTag price={item.price} custom={item.custom} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
-                Add-on expansions
-              </h3>
+              <h3 className={sectionTitleClass}>Add-on expansions</h3>
 
               <div className="flex flex-wrap gap-2" role="group" aria-label="Add-on expansions">
                 {addOns.map((item) => {
@@ -461,42 +670,7 @@ export default function Services() {
                     >
                       <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
                       {item.name}
-											{item.price != 0 ? (
-												<span className="shrink-0">
-													+{formatPrice(item.price)}
-													{item.monthly ? '/mo' : ''}
-												</span>
-											) : null}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
-                Available interactive systems
-              </h3>
-              
-              <div className="flex flex-wrap gap-2" role="group" aria-label="System expansions">
-                {systems.map((item) => {
-                  const active = selectedSystemIds.includes(item.id);
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      aria-pressed={active}
-                      title={item.description}
-                      onClick={() => toggleSystem(item.id)}
-                      className={pillClass(active)}
-                    >
-                      <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
-                      {item.name}
-                      {item.price != 0 ? (
-												<span className="shrink-0">
-													+{formatPrice(item.price)}
-												</span>
-											) : null}
+                      <PriceTag price={item.price} monthly={item.monthly} custom={item.custom} />
                     </button>
                   );
                 })}
@@ -511,7 +685,7 @@ export default function Services() {
               <div className="space-y-1">
                 <p className="text-xs uppercase tracking-wider text-[var(--muted)]">{selectedTier.label}</p>
                 <h2 className="font-serif text-xl font-semibold leading-snug sm:text-2xl">{selectedTier.name}</h2>
-                {selectedTemplate && <p className="text-sm text-[var(--muted)]">{selectedTemplate.name}</p>}
+                {selectedVariant && <p className="text-sm text-[var(--muted)]">{selectedVariant.name}</p>}
               </div>
 
               <div className="shrink-0 text-right">
@@ -523,18 +697,18 @@ export default function Services() {
 
             <dl className="space-y-3 text-sm">
               <div className="space-y-2">
-                <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Details</dt>
+                <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Timeline</dt>
                 <dd>Delivered in {selectedTier.timeline}.</dd>
               </div>
 
               <div className="space-y-2">
                 <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Best for</dt>
-                <dd>{selectedTemplate?.bestFor ?? selectedTier.bestFor}</dd>
+                <dd>{selectedVariant?.bestFor ?? selectedTier.bestFor}</dd>
               </div>
 
               <div className="space-y-2">
                 <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Core goal</dt>
-                <dd>{selectedTemplate?.coreGoal ?? selectedTier.coreGoal}</dd>
+                <dd>{selectedVariant?.coreGoal ?? selectedTier.coreGoal}</dd>
               </div>
 
               <div className="space-y-2">
@@ -555,38 +729,15 @@ export default function Services() {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-[var(--muted)]">
-              Pricing calculator
-            </h3>
+            <h3 className={sectionTitleClass}>Pricing calculator</h3>
 
             <div className="space-y-2 text-sm">
-              <div className="flex items-start justify-between gap-4">
-                <span>{selectedTier.label} base</span>
-                <span className="shrink-0">{formatPrice(selectedTier.price)}</span>
-              </div>
-
-              {selectedAddOns.map((item) => (
-                <div key={item.id} className="flex items-start justify-between gap-6 text-[var(--muted)]">
-                  <span>{item.name}</span>
-                  {item.price != 0 ? (
-										<span className="shrink-0">
-											+{formatPrice(item.price)}
-											{item.monthly ? '/mo' : ''}
-										</span>
-									) : null}
-                </div>
-              ))}
-
-              {selectedSystems.map((item) => (
-                <div key={item.id} className="flex items-start justify-between gap-6 text-[var(--muted)]">
-                  <span>{item.name}</span>
-                  {item.price != 0 ? (
-										<span className="shrink-0">
-											+{formatPrice(item.price)}
-										</span>
-									) : null}
-                </div>
-              ))}
+              <LineItems
+                tier={selectedTier}
+                variant={selectedVariant}
+                selectedAddOns={selectedAddOns}
+                selectedSystems={selectedSystems}
+              />
             </div>
 
             <div className="space-y-2 border-t border-[var(--border)] pt-4">
@@ -594,14 +745,17 @@ export default function Services() {
                 <span className="text-sm text-[var(--muted)]">Estimated total</span>
                 <span className="font-serif text-3xl font-bold" aria-live="polite">{formatPrice(oneTime)}</span>
               </div>
+
               {monthly > 0 && (
                 <div className="flex items-baseline justify-between gap-4 text-sm text-[var(--muted)]">
                   <span>Plus recurring</span>
                   <span>{formatPrice(monthly)}/month</span>
                 </div>
               )}
+
               <p className="text-xs text-[var(--muted)]">
                 Starting prices. Final quote is confirmed after we talk.
+                {hasCustom && ' Custom requests are quoted separately.'}
               </p>
             </div>
           </div>
@@ -620,12 +774,13 @@ export default function Services() {
       {dialogOpen && (
         <SummaryDialog
           tier={selectedTier}
-          template={selectedTemplate}
+          variant={selectedVariant}
           selectedAddOns={selectedAddOns}
           selectedSystems={selectedSystems}
           oneTime={oneTime}
           monthly={monthly}
-          onClose={() => setDialogOpen(false)}
+          hasCustom={hasCustom}
+          onClose={closeDialog}
         />
       )}
     </article>
