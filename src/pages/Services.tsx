@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import emailjs from '@emailjs/browser';
 
 type Variant = {
@@ -46,7 +46,7 @@ const tiers: Tier[] = [
     id: 'tier-1',
     name: 'Template-Based Landing Page',
     label: 'Tier 1',
-    price: 79,
+    price: 65,
     timeline: '1 to 3 business days',
     bestFor: 'Those who need a high-converting site deployed fast.',
     coreGoal: 'A polished, ready-to-launch site that turns visitors into customers.',
@@ -94,7 +94,7 @@ const tiers: Tier[] = [
     id: 'tier-2',
     name: 'Non-Templated Landing Page',
     label: 'Tier 2',
-    price: 119,
+    price: 120,
     negotiable: true,
     timeline: '3 to 7 business days',
     bestFor:
@@ -112,7 +112,7 @@ const tiers: Tier[] = [
     id: 'tier-3',
     name: 'Web Systems & Applications',
     label: 'Tier 3',
-    price: 249,
+    price: 250,
     negotiable: true,
     timeline: '7 to 14 business days',
     bestFor:
@@ -183,13 +183,6 @@ const addOns: AddOn[] = [
     price: 25,
     description:
       'Privacy-friendly analytics, event and goal tracking, and a simple report so you can see what is working',
-  },
-  {
-    id: 'multilingual',
-    name: 'Multi-Language Support',
-    price: 40,
-    description:
-      'Language switcher with translated content structure for up to two additional languages (translations provided by you)',
   },
   {
     id: 'other-addons',
@@ -312,6 +305,153 @@ function LineItems({
   );
 }
 
+function Modal({
+  title,
+  subtitle,
+  onClose,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  const titleId = useId();
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    closeRef.current?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center overflow-y-auto bg-black/70 p-4"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className="my-auto w-full max-w-xl space-y-6 border border-[var(--border)] bg-[var(--bg)] p-6 font-sans text-[var(--fg)] shadow-2xl sm:p-8"
+      >
+        <header className="flex items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h2 id={titleId} className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">
+              {title}
+            </h2>
+            {subtitle && <p className="text-sm text-[var(--muted)]">{subtitle}</p>}
+          </div>
+
+          <button
+            ref={closeRef}
+            type="button"
+            onClick={onClose}
+            aria-label={`Close ${title.toLowerCase()}`}
+            className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--border)] transition-colors hover:border-[var(--fg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+          >
+            <i className="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        {children}
+      </section>
+    </div>
+  );
+}
+
+function DetailsContent({
+  tier,
+  variant,
+  selectedAddOns,
+  selectedSystems,
+}: {
+  tier: Tier;
+  variant: Variant | undefined;
+  selectedAddOns: AddOn[];
+  selectedSystems: System[];
+}) {
+  const extras = [
+    { title: 'Selected systems', items: selectedSystems },
+    { title: 'Selected add-ons', items: selectedAddOns },
+  ].filter((group) => group.items.length > 0);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <p className="text-xs uppercase tracking-wider text-[var(--muted)]">{tier.label}</p>
+          <h2 className="font-serif text-xl font-semibold leading-snug sm:text-2xl">{tier.name}</h2>
+          {variant && <p className="text-sm text-[var(--muted)]">{variant.name}</p>}
+        </div>
+
+        <div className="shrink-0 text-right">
+          <p className="text-xs text-[var(--muted)]">Starting at</p>
+          <p className="text-xl font-semibold">{formatPrice(tier.price)}</p>
+          {tier.negotiable && <p className="text-xs text-[var(--muted)]">Negotiable</p>}
+        </div>
+      </div>
+
+      <dl className="space-y-3 text-sm">
+        <div className="space-y-2">
+          <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Timeline</dt>
+          <dd>Delivered in {tier.timeline}.</dd>
+        </div>
+
+        <div className="space-y-2">
+          <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Best for</dt>
+          <dd>{variant?.bestFor ?? tier.bestFor}</dd>
+        </div>
+
+        <div className="space-y-2">
+          <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Core goal</dt>
+          <dd>{variant?.coreGoal ?? tier.coreGoal}</dd>
+        </div>
+
+        <div className="space-y-2">
+          <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Benefits</dt>
+          <dd>
+            <ul className="list-disc space-y-1.5 pl-5 marker:text-[var(--muted)]">
+              {tier.benefits.map((benefit) => (
+                <li key={benefit}>{benefit}</li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+
+        {extras.map((group) => (
+          <div key={group.title} className="space-y-2">
+            <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">{group.title}</dt>
+            <dd>
+              <ul className="space-y-2">
+                {group.items.map((item) => (
+                  <li key={item.id} className="border-l-2 border-[var(--border)] pl-3">
+                    <span className="block font-semibold">{item.name}</span>
+                    <span className="block text-[var(--muted)]">{item.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <p className="text-xs text-[var(--muted)]">Hosting, domain, and third-party API fees are not included.</p>
+    </div>
+  );
+}
+
 function SummaryDialog({
   tier,
   variant,
@@ -335,21 +475,6 @@ function SummaryDialog({
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
-  const closeRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
-    closeRef.current?.focus();
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [onClose]);
 
   const describe = (item: { name: string; price: number; custom?: boolean }, monthlyItem = false) =>
     item.custom ? `${item.name} (custom quote)` : `${item.name} (+${formatPrice(item.price)}${monthlyItem ? '/month' : ''})`;
@@ -398,114 +523,83 @@ function SummaryDialog({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[120] flex items-center justify-center overflow-y-auto bg-black/70 p-4"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="summaryTitle"
-        className="my-auto w-full max-w-xl space-y-6 border border-[var(--border)] bg-[var(--bg)] p-6 font-sans text-[var(--fg)] shadow-2xl sm:p-8"
-      >
-        <header className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h2 id="summaryTitle" className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">
-              YOUR ESTIMATE
-            </h2>
-            <p className="text-sm text-[var(--muted)]">Review your selection and send it over.</p>
-          </div>
+    <Modal title="YOUR ESTIMATE" subtitle="Review your selection and send it over." onClose={onClose}>
+      <div className="space-y-3 border-y border-[var(--border)] py-4 text-sm">
+        <LineItems tier={tier} variant={variant} selectedAddOns={selectedAddOns} selectedSystems={selectedSystems} />
 
-          <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            aria-label="Close summary"
-            className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[var(--border)] transition-colors hover:border-[var(--fg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
-          >
-            <i className="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
-        </header>
-
-        <div className="space-y-3 border-y border-[var(--border)] py-4 text-sm">
-          <LineItems tier={tier} variant={variant} selectedAddOns={selectedAddOns} selectedSystems={selectedSystems} />
-
-          <div className="flex items-center justify-between gap-4 border-t border-[var(--border)] pt-3 text-base font-semibold">
-            <span>One-time total</span>
-            <span>{formatPrice(oneTime)}</span>
-          </div>
-
-          {monthly > 0 && (
-            <div className="flex items-center justify-between gap-4 text-[var(--muted)]">
-              <span>Recurring</span>
-              <span>{formatPrice(monthly)}/month</span>
-            </div>
-          )}
-
-          <p className="text-xs text-[var(--muted)]">
-            Timeline: {tier.timeline}.{' '}
-            {tier.negotiable ? 'Starting price, negotiable.' : 'Starting price, final quote confirmed after we talk.'}
-            {hasCustom && ' Custom requests are quoted separately.'}
-          </p>
+        <div className="flex items-center justify-between gap-4 border-t border-[var(--border)] pt-3 text-base font-semibold">
+          <span>One-time total</span>
+          <span>{formatPrice(oneTime)}</span>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-          <div className="space-y-1">
-            <label htmlFor="summaryName" className="text-sm text-[var(--muted)]">Name</label>
-            <input
-              id="summaryName"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-[var(--border)] bg-transparent px-3 py-2 outline-none focus:border-[var(--fg)]"
-            />
+        {monthly > 0 && (
+          <div className="flex items-center justify-between gap-4 text-[var(--muted)]">
+            <span>Recurring</span>
+            <span>{formatPrice(monthly)}/month</span>
           </div>
+        )}
 
-          <div className="space-y-1">
-            <label htmlFor="summaryEmail" className="text-sm text-[var(--muted)]">
-              Email <span className="text-[var(--required)]">*</span>
-            </label>
-            <input
-              id="summaryEmail"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full border border-[var(--border)] bg-transparent px-3 py-2 outline-none focus:border-[var(--fg)]"
-            />
-          </div>
+        <p className="text-xs text-[var(--muted)]">
+          Timeline: {tier.timeline}.{' '}
+          {tier.negotiable ? 'Starting price, negotiable.' : 'Starting price, final quote confirmed after we talk.'}
+          {hasCustom && ' Custom requests are quoted separately.'}
+        </p>
+      </div>
 
-          <div className="space-y-1">
-            <label htmlFor="summaryMessage" className="text-sm text-[var(--muted)]">
-              Message <span className="text-[var(--required)]">*</span>
-            </label>
-            <textarea
-              id="summaryMessage"
-              rows={4}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              required
-              className="w-full resize-y border border-[var(--border)] bg-transparent px-3 py-2 outline-none focus:border-[var(--fg)]"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
+        <div className="space-y-1">
+          <label htmlFor="summaryName" className="text-sm text-[var(--muted)]">Name</label>
+          <input
+            id="summaryName"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border border-[var(--border)] bg-transparent px-3 py-2 outline-none focus:border-[var(--fg)]"
+          />
+        </div>
 
-          <button
-            type="submit"
-            disabled={sending}
-            className="flex cursor-pointer items-center justify-center gap-2 border border-[var(--fg)] bg-[var(--fg)] px-5 py-2 text-sm text-[var(--bg)] transition-colors duration-200 hover:bg-[var(--bg)] hover:text-[var(--fg)] disabled:opacity-50"
-          >
-            <i className="fa-solid fa-paper-plane" aria-hidden="true"></i>
-            {sending ? 'Sending...' : 'Send inquiry'}
-          </button>
+        <div className="space-y-1">
+          <label htmlFor="summaryEmail" className="text-sm text-[var(--muted)]">
+            Email <span className="text-[var(--required)]">*</span>
+          </label>
+          <input
+            id="summaryEmail"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full border border-[var(--border)] bg-transparent px-3 py-2 outline-none focus:border-[var(--fg)]"
+          />
+        </div>
 
-          <span className="text-sm text-[var(--muted)]">
-            Please don’t include passwords and other sensitive information.
-          </span>
-        </form>
-      </section>
-    </div>
+        <div className="space-y-1">
+          <label htmlFor="summaryMessage" className="text-sm text-[var(--muted)]">
+            Message <span className="text-[var(--required)]">*</span>
+          </label>
+          <textarea
+            id="summaryMessage"
+            rows={4}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            required
+            className="w-full resize-y border border-[var(--border)] bg-transparent px-3 py-2 outline-none focus:border-[var(--fg)]"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={sending}
+          className="flex cursor-pointer items-center justify-center gap-2 border border-[var(--fg)] bg-[var(--fg)] px-5 py-2 text-sm text-[var(--bg)] transition-colors duration-200 hover:bg-[var(--bg)] hover:text-[var(--fg)] disabled:opacity-50"
+        >
+          <i className="fa-solid fa-paper-plane" aria-hidden="true"></i>
+          {sending ? 'Sending...' : 'Send inquiry'}
+        </button>
+
+        <span className="text-sm text-[var(--muted)]">
+          Please don’t include passwords and other sensitive information.
+        </span>
+      </form>
+    </Modal>
   );
 }
 
@@ -515,6 +609,8 @@ export default function Services() {
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>([]);
   const [selectedSystemIds, setSelectedSystemIds] = useState<string[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
 
   const selectedTier = tiers.find((tier) => tier.id === selectedTierId) ?? tiers[0];
   const selectedVariant = selectedTier.variants?.find((variant) => variant.id === selectedVariantId);
@@ -540,6 +636,7 @@ export default function Services() {
   const hasCustom = selectedAddOns.some((item) => item.custom) || selectedSystems.some((item) => item.custom);
 
   const closeDialog = useCallback(() => setDialogOpen(false), []);
+  const closeDetails = useCallback(() => setDetailsOpen(false), []);
 
   const toggleAddOn = (id: string) => {
     setSelectedAddOnIds((current) =>
@@ -557,6 +654,11 @@ export default function Services() {
     setSelectedTierId(tier.id);
     setSelectedVariantId(tier.variants?.[0].id);
     if (!tier.hasSystems) setSelectedSystemIds([]);
+  };
+
+  const viewDetails = (tier: Tier) => {
+    if (tier.id !== selectedTier.id) chooseTier(tier);
+    setDetailsOpen(true);
   };
 
   return (
@@ -578,27 +680,40 @@ export default function Services() {
           </header>
 
           <div className="space-y-6 font-sans">
-            <div className="space-y-3">
+            <div className="w-full space-y-3">
               <h3 className={sectionTitleClass}>Service tiers</h3>
 
-              <div className="grid gap-2 font-bold tracking-wider" role="radiogroup" aria-label="Service tiers">
+              <div className="grid gap-6" role="radiogroup" aria-label="Service tiers">
                 {tiers.map((tier) => (
-                  <button
-                    key={tier.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={selectedTier.id === tier.id}
-                    onClick={() => chooseTier(tier)}
-                    className={cardClass(selectedTier.id === tier.id)}
-                  >
-                    <div className="flex w-full justify-between gap-2">
-                      <span className="text-xs uppercase tracking-wider opacity-70">{tier.label}</span>
-                      {tier.negotiable ? <span className="text-xs uppercase tracking-wider opacity-70">Negotiable</span> : null}
-                      <span className="opacity-70">From {formatPrice(tier.price)}</span>
-                    </div>
+                  <div key={tier.id} className="grid gap-2 space-y-1.5">
+                    <button
+                      type="button"
+                      onClick={() => viewDetails(tier)}
+                      aria-haspopup="dialog"
+                      className="group ml-auto inline-flex cursor-pointer items-center gap-2 text-xs text-[var(--muted)] underline-offset-4 transition-colors duration-200 hover:text-[var(--fg)] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)] lg:hidden"
+                    >
+                      View details
+                      <i
+                        className="fa-solid fa-chevron-right text-[10px] transition-transform duration-200 group-hover:translate-x-0.5"
+                        aria-hidden="true"
+                      ></i>
+                    </button>
 
-                    {tier.name}
-                  </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={selectedTier.id === tier.id}
+                      onClick={() => chooseTier(tier)}
+                      className={`${cardClass(selectedTier.id === tier.id)} font-bold tracking-wider`}
+                    >
+                      <div className="flex w-full justify-between gap-2">
+                        <span className="text-xs uppercase tracking-wider opacity-70">{tier.label}</span>
+                        <span className="opacity-70">From {formatPrice(tier.price)}</span>
+                      </div>
+
+                      {tier.name}
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
@@ -679,53 +794,14 @@ export default function Services() {
           </div>
         </div>
 
-        <div className="w-full space-y-6 border border-[var(--border)] px-6 py-6 font-sans lg:sticky lg:top-10">
-          <div className="space-y-4 border-b border-[var(--border)] pb-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-wider text-[var(--muted)]">{selectedTier.label}</p>
-                <h2 className="font-serif text-xl font-semibold leading-snug sm:text-2xl">{selectedTier.name}</h2>
-                {selectedVariant && <p className="text-sm text-[var(--muted)]">{selectedVariant.name}</p>}
-              </div>
-
-              <div className="shrink-0 text-right">
-                <p className="text-xs text-[var(--muted)]">Starting at</p>
-                <p className="text-xl font-semibold">{formatPrice(selectedTier.price)}</p>
-                {selectedTier.negotiable && <p className="text-xs text-[var(--muted)]">Negotiable</p>}
-              </div>
-            </div>
-
-            <dl className="space-y-3 text-sm">
-              <div className="space-y-2">
-                <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Timeline</dt>
-                <dd>Delivered in {selectedTier.timeline}.</dd>
-              </div>
-
-              <div className="space-y-2">
-                <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Best for</dt>
-                <dd>{selectedVariant?.bestFor ?? selectedTier.bestFor}</dd>
-              </div>
-
-              <div className="space-y-2">
-                <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Core goal</dt>
-                <dd>{selectedVariant?.coreGoal ?? selectedTier.coreGoal}</dd>
-              </div>
-
-              <div className="space-y-2">
-                <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Benefits</dt>
-                <dd>
-                  <ul className="list-disc space-y-1.5 pl-5 marker:text-[var(--muted)]">
-                    {selectedTier.benefits.map((benefit) => (
-                      <li key={benefit}>{benefit}</li>
-                    ))}
-                  </ul>
-                </dd>
-              </div>
-
-              <p className="text-xs text-[var(--muted)]">
-                Hosting, domain, and third-party API fees are not included.
-              </p>
-            </dl>
+        <div className="hidden w-full space-y-6 border border-[var(--border)] px-6 py-6 font-sans lg:sticky lg:top-10 lg:block">
+          <div className="border-b border-[var(--border)] pb-6">
+            <DetailsContent
+              tier={selectedTier}
+              variant={selectedVariant}
+              selectedAddOns={selectedAddOns}
+              selectedSystems={selectedSystems}
+            />
           </div>
 
           <div className="space-y-3">
@@ -770,6 +846,73 @@ export default function Services() {
           </button>
         </div>
       </section>
+
+      <div className="sticky bottom-0 z-[90] -mx-5 border-t border-[var(--border)] bg-[var(--bg)] px-5 py-3 font-sans shadow-[0_-8px_24px_rgba(0,0,0,0.08)] lg:hidden">
+        <div className="space-y-3">
+          <button
+            type="button"
+            aria-expanded={calculatorOpen}
+            aria-controls="mobileCalculator"
+            onClick={() => setCalculatorOpen((open) => !open)}
+            className="flex w-full cursor-pointer items-center justify-between gap-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+          >
+            <span className={sectionTitleClass}>Pricing calculator</span>
+            <i
+              className={`fa-solid fa-chevron-up text-xs text-[var(--muted)] transition-transform duration-200 ${
+                calculatorOpen ? 'rotate-180' : ''
+              }`}
+              aria-hidden="true"
+            ></i>
+          </button>
+
+          {calculatorOpen && (
+            <div
+              id="mobileCalculator"
+              className="max-h-[40dvh] space-y-2 overflow-y-auto border-t border-[var(--border)] pt-3 text-sm"
+            >
+              <LineItems
+                tier={selectedTier}
+                variant={selectedVariant}
+                selectedAddOns={selectedAddOns}
+                selectedSystems={selectedSystems}
+              />
+
+              <p className="pt-1 text-xs text-[var(--muted)]">
+                Starting prices. Final quote is confirmed after we talk.
+                {hasCustom && ' Custom requests are quoted separately.'}
+              </p>
+            </div>
+          )}
+
+          <div className="flex items-start justify-between gap-4 border-t border-[var(--border)] pt-4">
+            <div>
+              <p className="text-xs text-[var(--muted)]">Estimated total</p>
+              <p className="font-serif text-2xl font-bold leading-none" aria-live="polite">{formatPrice(oneTime)}</p>
+              {monthly > 0 && <p className="mt-1 text-xs text-[var(--muted)]">+ {formatPrice(monthly)}/month</p>}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setDialogOpen(true)}
+              className="flex shrink-0 cursor-pointer items-center justify-center gap-2 border border-[var(--fg)] bg-[var(--fg)] px-5 py-2 text-sm text-[var(--bg)] transition-colors duration-200 hover:bg-[var(--bg)] hover:text-[var(--fg)]"
+            >
+              <i className="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              Submit inquiry
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {detailsOpen && (
+        <Modal title="SERVICE DETAILS" onClose={closeDetails}>
+          <DetailsContent
+            tier={selectedTier}
+            variant={selectedVariant}
+            selectedAddOns={selectedAddOns}
+            selectedSystems={selectedSystems}
+          />
+        </Modal>
+      )}
 
       {dialogOpen && (
         <SummaryDialog
