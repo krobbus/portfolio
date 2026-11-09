@@ -242,8 +242,9 @@ const cardClass = (active: boolean) =>
 
 const sectionTitleClass = 'text-sm font-semibold uppercase tracking-wider text-[var(--muted)]';
 
-function PriceTag({ price, monthly = false, custom = false }: { price: number; monthly?: boolean; custom?: boolean }) {
+function PriceTag({ price, monthly = false, custom = false, included = false }: { price: number; monthly?: boolean; custom?: boolean; included?: boolean }) {
   if (custom) return <span className="shrink-0 text-xs opacity-80">Quote</span>;
+  if (included) return <span className="shrink-0 text-xs opacity-80">Included</span>;
   if (price === 0) return null;
   return (
     <span className="shrink-0">
@@ -253,7 +254,7 @@ function PriceTag({ price, monthly = false, custom = false }: { price: number; m
   );
 }
 
-function LineItems({ tier, variant, selectedAddOns, selectedSystems }: { tier: Tier; variant: Variant | undefined; selectedAddOns: AddOn[]; selectedSystems: System[] }) {
+function LineItems({ tier, variant, selectedAddOns, selectedSystems, freeSystemId }: { tier: Tier; variant: Variant | undefined; selectedAddOns: AddOn[]; selectedSystems: System[]; freeSystemId: string | undefined }) {
   return (
     <>
       <div className="flex items-start justify-between gap-4">
@@ -274,7 +275,7 @@ function LineItems({ tier, variant, selectedAddOns, selectedSystems }: { tier: T
       {selectedSystems.map((item) => (
         <div key={item.id} className="flex items-start justify-between gap-4 text-[var(--muted)]">
           <span>{item.name}</span>
-          <PriceTag price={item.price} custom={item.custom} />
+          <PriceTag price={item.price} custom={item.custom} included={item.id === freeSystemId} />
         </div>
       ))}
 
@@ -423,7 +424,7 @@ function DetailsContent({ tier, variant, selectedAddOns, selectedSystems } : { t
   );
 }
 
-function SummaryDialog({ tier, variant, selectedAddOns, selectedSystems, oneTime, monthly, hasCustom, onClose }: { tier: Tier; variant: Variant | undefined; selectedAddOns: AddOn[]; selectedSystems: System[]; oneTime: number; monthly: number; hasCustom: boolean; onClose: () => void }) {
+function SummaryDialog({ tier, variant, selectedAddOns, selectedSystems, freeSystemId, oneTime, monthly, hasCustom, onClose }: { tier: Tier; variant: Variant | undefined; selectedAddOns: AddOn[]; selectedSystems: System[]; freeSystemId: string | undefined; oneTime: number; monthly: number; hasCustom: boolean; onClose: () => void }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -439,7 +440,7 @@ function SummaryDialog({ tier, variant, selectedAddOns, selectedSystems, oneTime
     `Timeline: ${tier.timeline}`,
     tier.hasSystems
       ? selectedSystems.length
-        ? `Systems: ${selectedSystems.map((item) => describe(item)).join(', ')}`
+        ? `Systems: ${selectedSystems.map((item) => (item.id === freeSystemId ? `${item.name} (included)` : describe(item))).join(', ')}`
         : 'Systems: None'
       : null,
     selectedAddOns.length
@@ -478,7 +479,7 @@ function SummaryDialog({ tier, variant, selectedAddOns, selectedSystems, oneTime
   return (
     <Modal title="YOUR ESTIMATE" subtitle="Review your selection and send it over." onClose={onClose}>
       <div className="space-y-3 border-y border-[var(--border)] py-4 text-sm">
-        <LineItems tier={tier} variant={variant} selectedAddOns={selectedAddOns} selectedSystems={selectedSystems} />
+        <LineItems tier={tier} variant={variant} selectedAddOns={selectedAddOns} selectedSystems={selectedSystems} freeSystemId={freeSystemId} />
 
         <div className="flex items-center justify-between gap-4 border-t border-[var(--border)] pt-3 text-base font-semibold">
           <span>One-time total</span>
@@ -574,14 +575,21 @@ export default function Services() {
   );
 
   const selectedSystems = useMemo(
-    () => (selectedTier.hasSystems ? systems.filter((item) => selectedSystemIds.includes(item.id)) : []),
+    () =>
+      selectedTier.hasSystems
+        ? selectedSystemIds
+            .map((id) => systems.find((item) => item.id === id))
+            .filter((item): item is System => Boolean(item))
+        : [],
     [selectedSystemIds, selectedTier.hasSystems]
   );
+
+  const freeSystemId = selectedSystems.find((item) => !item.custom)?.id;
 
   const oneTime =
     selectedTier.price +
     (selectedVariant?.price ?? 0) +
-    selectedSystems.reduce((sum, item) => sum + item.price, 0) +
+    selectedSystems.reduce((sum, item) => sum + (item.id === freeSystemId ? 0 : item.price), 0) +
     selectedAddOns.filter((item) => !item.monthly).reduce((sum, item) => sum + item.price, 0);
 
   const monthly = selectedAddOns.filter((item) => item.monthly).reduce((sum, item) => sum + item.price, 0);
@@ -706,6 +714,7 @@ export default function Services() {
                     })
                     .map((item) => {
                       const active = selectedSystemIds.includes(item.id);
+                      const included = !item.custom && (freeSystemId === undefined || item.id === freeSystemId);
 
                       return (
                         <button
@@ -718,7 +727,7 @@ export default function Services() {
                         >
                           <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
                           {item.name}
-                          <PriceTag price={item.price} custom={item.custom} />
+                          <PriceTag price={item.price} custom={item.custom} included={included} />
                         </button>
                       );
                   })}
@@ -779,6 +788,7 @@ export default function Services() {
                 variant={selectedVariant}
                 selectedAddOns={selectedAddOns}
                 selectedSystems={selectedSystems}
+                freeSystemId={freeSystemId}
               />
             </div>
 
@@ -841,6 +851,7 @@ export default function Services() {
                 variant={selectedVariant}
                 selectedAddOns={selectedAddOns}
                 selectedSystems={selectedSystems}
+                freeSystemId={freeSystemId}
               />
 
               <p className="pt-1 text-xs text-[var(--muted)]">
@@ -886,6 +897,7 @@ export default function Services() {
           variant={selectedVariant}
           selectedAddOns={selectedAddOns}
           selectedSystems={selectedSystems}
+          freeSystemId={freeSystemId}
           oneTime={oneTime}
           monthly={monthly}
           hasCustom={hasCustom}
