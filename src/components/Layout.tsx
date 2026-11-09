@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { socials } from '../constants/SocialRef';
 import CustomScrollbar from './CustomScrollbar';
 
 const links = [
@@ -10,6 +11,15 @@ const links = [
   { to: '/services', label: 'Services', icon: 'fa-briefcase' },
   { to: '/contact', label: 'Contact', icon: 'fa-envelope' },
 ];
+
+const fadeLabel =
+  'whitespace-nowrap transition-opacity duration-200 md:max-lg:opacity-0 md:max-lg:group-hover/nav:opacity-100 md:max-lg:group-focus-within/nav:opacity-100';
+
+const collapsedOnly =
+  'hidden md:max-lg:flex md:max-lg:group-hover/nav:hidden md:max-lg:group-focus-within/nav:hidden';
+
+const expandedOnly =
+  'flex md:max-lg:hidden md:max-lg:group-hover/nav:flex md:max-lg:group-focus-within/nav:flex';
 
 function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
   return (
@@ -28,7 +38,7 @@ function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }
           dark ? 'translate-x-[30px]' : 'translate-x-0'
         }`}
       />
-      
+
       <span className="relative z-10 flex size-6 items-center justify-center">
         <i
           className={`fa-solid fa-sun ${dark ? 'text-[var(--muted)]' : 'text-[var(--bg)]'}`}
@@ -42,6 +52,19 @@ function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }
           aria-hidden="true"
         ></i>
       </span>
+    </button>
+  );
+}
+
+function CompactThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="flex size-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--muted)]/10 text-sm text-[var(--fg)] transition-colors duration-200 hover:bg-[var(--muted)]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+    >
+      <i className={`fa-solid ${dark ? 'fa-moon' : 'fa-sun'}`} aria-hidden="true"></i>
     </button>
   );
 }
@@ -84,7 +107,7 @@ function MobileScrollProgress() {
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(progress * 100)}
-      className="absolute inset-x-0 bottom-0 h-1 bg-[var(--border)]/40 lg:hidden"
+      className="absolute inset-x-0 bottom-0 h-1 bg-[var(--border)]/40 md:hidden"
     >
       <span
         className="block h-full origin-left bg-[var(--fg)]"
@@ -185,15 +208,16 @@ function GameLaunchCard({ onStart }: { onStart: () => void }) {
     <button
       type="button"
       onClick={onStart}
-      className="w-full group flex flex-col items-center justify-center gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg)] p-5 text-center font-sans shadow-sm transition-colors duration-200 hover:bg-[var(--muted)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+      aria-label="Take a break, play a quick game"
+      className="group flex w-full flex-col items-center justify-center gap-3 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)] p-5 text-center font-sans shadow-sm transition-[background-color,padding] duration-200 hover:bg-[var(--muted)]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)] md:max-lg:p-1 md:max-lg:group-hover/nav:p-5 md:max-lg:group-focus-within/nav:p-5"
     >
-      <span className="flex size-8 items-center justify-center rounded-full bg-[var(--fg)] text-[var(--bg)] transition-transform duration-200 group-hover:scale-105">
+      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[var(--fg)] text-[var(--bg)] transition-transform duration-200 group-hover:scale-105">
         <i className="fa-solid fa-gamepad" aria-hidden="true"></i>
       </span>
-      
-      <span>
-        <span className="block text-sm font-semibold text-[var(--fg)]">Take a break</span>
-        <span className="mt-1 block text-xs text-[var(--muted)]">Play a quick game</span>
+
+      <span className={`${expandedOnly} flex-col`}>
+        <span className="block whitespace-nowrap text-sm font-semibold text-[var(--fg)]">Take a break</span>
+        <span className="mt-1 block whitespace-nowrap text-xs text-[var(--muted)]">Play a quick game</span>
       </span>
     </button>
   );
@@ -247,23 +271,36 @@ export default function Layout() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobileMenuOpen]);
 
+  useEffect(() => {
+    const tabletQuery = window.matchMedia('(min-width: 768px)');
+    const closeOnResize = (event: MediaQueryListEvent) => {
+      if (event.matches) setIsMobileMenuOpen(false);
+    };
+
+    tabletQuery.addEventListener('change', closeOnResize);
+    return () => tabletQuery.removeEventListener('change', closeOnResize);
+  }, []);
+
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--bg)] text-[var(--fg)] selection:text-blue-500 lg:pl-64">
-      <aside className="fixed inset-y-0 left-0 z-[100] hidden w-64 flex-col border-r border-[var(--border)] bg-[var(--bg)] px-7 py-8 font-sans lg:flex">
+    <div className="flex min-h-screen flex-col bg-[var(--bg)] text-[var(--fg)] selection:text-blue-500 md:pl-16 lg:pl-64">
+      <aside className="group/nav fixed inset-y-0 left-0 z-[100] hidden w-16 flex-col overflow-hidden border-r border-[var(--border)] bg-[var(--bg)] px-3 py-8 font-sans transition-[width,box-shadow] duration-300 ease-out motion-reduce:transition-none md:flex md:max-lg:hover:w-64 md:max-lg:hover:shadow-2xl md:max-lg:focus-within:w-64 md:max-lg:focus-within:shadow-2xl lg:w-64 lg:px-7">
         <Link
           to="/"
-          className="font-serif text-lg font-semibold leading-tight tracking-tight duration-200 hover:text-[var(--muted)]"
+          aria-label="Alef Justin Loresca, home"
+          className="flex h-7 items-center font-serif font-semibold leading-tight tracking-tight duration-200 hover:text-[var(--muted)]"
         >
-          ALEF JUSTIN LORESCA
+          <span className={`${expandedOnly} whitespace-nowrap text-lg`}>ALEF JUSTIN LORESCA</span>
+          <span className={`${collapsedOnly} w-full justify-center text-base`}>AJL</span>
         </Link>
 
-        <nav aria-label="Main navigation" className="mt-12 mb-4 h-full flex flex-col justify-between gap-2">
+        <nav aria-label="Main navigation" className="mb-4 mt-12 flex h-full flex-col justify-between gap-2">
           <ul className="flex flex-col gap-2 text-sm">
             {links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.to === '/'}
+                aria-label={link.label}
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-sm px-3 py-2.5 duration-200 ${
                     isActive
@@ -272,23 +309,28 @@ export default function Layout() {
                   }`
                 }
               >
-                <i className={`fa-solid ${link.icon} w-4 text-center`} aria-hidden="true"></i>
-                {link.label}
+                <i className={`fa-solid ${link.icon} w-4 shrink-0 text-center`} aria-hidden="true"></i>
+                <span className={fadeLabel}>{link.label}</span>
               </NavLink>
             ))}
           </ul>
 
-          <GameLaunchCard onStart={() => navigate("/game")} />
+          <GameLaunchCard onStart={() => navigate('/game')} />
         </nav>
 
-        <div className="mt-auto flex items-center justify-between border-t border-[var(--border)] pt-6 text-sm text-[var(--muted)]">
-          <span>Appearance</span>
-          <ThemeToggle dark={dark} onToggle={toggleTheme} />
+        <div className="mt-auto border-t border-[var(--border)] pt-6 text-sm text-[var(--muted)]">
+          <div className={`${expandedOnly} items-center justify-between`}>
+            <span className="whitespace-nowrap">Appearance</span>
+            <ThemeToggle dark={dark} onToggle={toggleTheme} />
+          </div>
+          <div className={`${collapsedOnly} justify-center`}>
+            <CompactThemeToggle dark={dark} onToggle={toggleTheme} />
+          </div>
         </div>
       </aside>
 
-      <nav aria-label="Main navigation" className="sticky top-0 z-[99] border-b border-[var(--border)] bg-[var(--bg)] font-sans lg:hidden">
-        <div className="max-w-4xl mx-auto px-5 py-4 flex items-center justify-between gap-4">
+      <nav aria-label="Main navigation" className="sticky top-0 z-[99] border-b border-[var(--border)] bg-[var(--bg)] font-sans md:hidden">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-4">
           <Link to="/" className="font-serif font-semibold tracking-tight duration-200 hover:text-[var(--muted)]">
             ALEF JUSTIN LORESCA
           </Link>
@@ -319,7 +361,7 @@ export default function Layout() {
           }`}
           aria-hidden={!isMobileMenuOpen}
         >
-          <div className="max-w-4xl mx-auto px-5 py-2">
+          <div className="mx-auto max-w-4xl px-5 py-2">
             {links.map((link) => (
               <NavLink
                 key={link.to}
@@ -343,30 +385,61 @@ export default function Layout() {
         <MobileScrollProgress />
       </nav>
 
-      <main className="flex-1 w-full max-w-5xl mx-auto px-5 py-12 font-sans text-[16px] leading-relaxed">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-12 font-sans text-[16px] leading-relaxed">
         <Outlet />
       </main>
 
-      <footer className="font-sans bg-[var(--bg)] border-t border-[var(--border)] z-[99]">
-        <div className="max-w-5xl mx-auto px-5 py-6 flex flex-wrap items-center justify-between gap-4 text-sm text-[var(--muted)]">
-          <span>&copy; 2026 Alef Justin Loresca</span>
+      <footer className="z-[99] border-t border-[var(--border)] bg-[var(--bg)] font-sans">
+        <div className="mx-auto max-w-5xl space-y-10 px-5 pb-6 pt-12">
+          <section aria-labelledby="footer-socials" className="space-y-6">
+            <header className="space-y-1">
+              <h2 id="footer-socials" className="font-serif text-2xl font-bold tracking-tight sm:text-3xl">
+                SOCIALS
+              </h2>
+            </header>
 
-          <div className="flex items-center gap-4">
-            <a href="https://github.com/krobbus" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="duration-200 hover:text-[var(--fg)]">
-              <i className="fa-brands fa-github text-lg"></i>
-            </a>
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {socials.map((social) => (
+                <li key={social.id}>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-4 rounded-xl border border-[var(--border)] bg-[var(--bg)] p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-[var(--fg)] hover:bg-[var(--muted)]/5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+                  >
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-full border border-[var(--border)] text-lg text-[var(--muted)] transition-colors duration-300 group-hover:border-[var(--fg)] group-hover:bg-[var(--fg)] group-hover:text-[var(--bg)]">
+                      <i className={social.icon} aria-hidden="true"></i>
+                    </span>
 
-            <a href="https://www.linkedin.com/in/alefjustinloresca/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="duration-200 hover:text-[var(--fg)]">
-              <i className="fa-brands fa-linkedin text-lg"></i>
-            </a>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-[var(--fg)]">{social.label}</span>
+                      <span className="block truncate text-xs text-[var(--muted)]">{social.handle}</span>
+                    </span>
 
-            <a href="https://www.instagram.com/ajloresca/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="duration-200 hover:text-[var(--fg)]">
-              <i className="fa-brands fa-square-instagram text-lg"></i>
-            </a>
+                    <i
+                      className="fa-solid fa-arrow-up-right-from-square shrink-0 text-xs text-[var(--muted)] transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[var(--fg)]"
+                      aria-hidden="true"
+                    ></i>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-            <a href="https://m.me/lorescaalef/" target="_blank" rel="noopener noreferrer" aria-label="Messenger" className="duration-200 hover:text-[var(--fg)]">
-              <i className="fa-brands fa-facebook-messenger text-lg"></i>
-            </a>
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[var(--border)] pt-6 text-sm text-[var(--muted)]">
+            <span>&copy; 2026 Alef Justin Loresca</span>
+
+            <button
+              type="button"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              className="group inline-flex items-center gap-2 transition-colors duration-200 hover:text-[var(--fg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+            >
+              Back to top
+              <i
+                className="fa-solid fa-arrow-up text-xs transition-transform duration-200 group-hover:-translate-y-0.5"
+                aria-hidden="true"
+              ></i>
+            </button>
           </div>
         </div>
       </footer>
@@ -376,7 +449,7 @@ export default function Layout() {
         key={pathname}
         windowTarget
         label="Page scroll"
-        className="page-scrollbar hidden lg:block"
+        className="page-scrollbar hidden md:block"
       />
     </div>
   );
