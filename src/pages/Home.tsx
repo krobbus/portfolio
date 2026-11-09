@@ -176,7 +176,7 @@ export default function Home() {
         </h1>
 
         <p className="font-sans text-xl text-[var(--muted)] tracking-wider">
-          AI Full Stack Developer, where I enjoy turning complex projects into intuitive and customer-focused experience.
+          Full Stack Developer, where I enjoy turning complex projects into intuitive and customer-focused experience.
         </p>
       </header>
 
