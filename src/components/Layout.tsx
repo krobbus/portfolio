@@ -343,12 +343,12 @@ export default function Layout() {
         <MobileScrollProgress />
       </nav>
 
-      <main className="flex-1 w-full max-w-4xl mx-auto px-5 py-12 font-sans text-[17px] leading-relaxed">
+      <main className="flex-1 w-full max-w-5xl mx-auto px-5 py-12 font-sans text-[16px] leading-relaxed">
         <Outlet />
       </main>
 
       <footer className="font-sans bg-[var(--bg)] border-t border-[var(--border)] z-[99]">
-        <div className="max-w-4xl mx-auto px-5 py-6 flex flex-wrap items-center justify-between gap-4 text-sm text-[var(--muted)]">
+        <div className="max-w-5xl mx-auto px-5 py-6 flex flex-wrap items-center justify-between gap-4 text-sm text-[var(--muted)]">
           <span>&copy; 2026 Alef Justin Loresca</span>
 
           <div className="flex items-center gap-4">
