@@ -46,8 +46,8 @@ const tiers: Tier[] = [
     id: 'tier-1',
     name: 'Template-Based Landing Page',
     label: 'Tier 1',
-    price: 65,
-    timeline: '1 to 3 business days',
+    price: 89,
+    timeline: '1 - 3 business days',
     bestFor: 'Those who need a high-converting site deployed fast.',
     coreGoal: 'A polished, ready-to-launch site that turns visitors into customers.',
     benefits: [
@@ -94,9 +94,9 @@ const tiers: Tier[] = [
     id: 'tier-2',
     name: 'Non-Templated Landing Page',
     label: 'Tier 2',
-    price: 120,
+    price: 129,
     negotiable: true,
-    timeline: '3 to 7 business days',
+    timeline: '3 - 5 business days',
     bestFor:
       'Brands that need a totally unique layout, custom animations, brand-specific design systems, or specialized workflows.',
     coreGoal: 'A distinctive, brand-defining web presence that stands apart from template sites.',
@@ -112,9 +112,9 @@ const tiers: Tier[] = [
     id: 'tier-3',
     name: 'Web Systems & Applications',
     label: 'Tier 3',
-    price: 250,
+    price: 249,
     negotiable: true,
-    timeline: '7 to 14 business days',
+    timeline: '7 - 14 business days',
     bestFor:
       'Businesses and teams that need working software: dashboards, stores, internal tools, or customer-facing platforms.',
     coreGoal: 'Replace manual, scattered workflows with a secure, reliable system built around how you operate.',
@@ -141,13 +141,6 @@ const tiers: Tier[] = [
         bestFor: 'Content-rich platforms, marketplaces, and portals with many distinct sections and routes.',
         coreGoal: 'Clear structure, shareable pages, and strong search visibility across a larger product.',
         price: 50,
-      },
-      {
-        id: 'pwa',
-        name: 'Progressive Web App (PWA)',
-        bestFor: 'Teams and customers who need an installable, mobile-friendly app with offline-ready behavior.',
-        coreGoal: 'An app-like experience on any device without going through an app store.',
-        price: 100,
       },
     ],
     hasSystems: true,
@@ -260,17 +253,7 @@ function PriceTag({ price, monthly = false, custom = false }: { price: number; m
   );
 }
 
-function LineItems({
-  tier,
-  variant,
-  selectedAddOns,
-  selectedSystems,
-}: {
-  tier: Tier;
-  variant: Variant | undefined;
-  selectedAddOns: AddOn[];
-  selectedSystems: System[];
-}) {
+function LineItems({ tier, variant, selectedAddOns, selectedSystems }: { tier: Tier; variant: Variant | undefined; selectedAddOns: AddOn[]; selectedSystems: System[] }) {
   return (
     <>
       <div className="flex items-start justify-between gap-4">
@@ -305,17 +288,7 @@ function LineItems({
   );
 }
 
-function Modal({
-  title,
-  subtitle,
-  onClose,
-  children,
-}: {
-  title: string;
-  subtitle?: string;
-  onClose: () => void;
-  children: ReactNode;
-}) {
+function Modal({ title, subtitle, onClose, children } : { title: string; subtitle?: string; onClose: () => void; children: ReactNode;}) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -371,24 +344,14 @@ function Modal({
   );
 }
 
-function DetailsContent({
-  tier,
-  variant,
-  selectedAddOns,
-  selectedSystems,
-}: {
-  tier: Tier;
-  variant: Variant | undefined;
-  selectedAddOns: AddOn[];
-  selectedSystems: System[];
-}) {
+function DetailsContent({ tier, variant, selectedAddOns, selectedSystems } : { tier: Tier; variant: Variant | undefined; selectedAddOns: AddOn[]; selectedSystems: System[] }) {
   const extras = [
     { title: 'Selected systems', items: selectedSystems },
     { title: 'Selected add-ons', items: selectedAddOns },
   ].filter((group) => group.items.length > 0);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-justify tracking-wider">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
           <p className="text-xs uppercase tracking-wider text-[var(--muted)]">{tier.label}</p>
@@ -404,23 +367,31 @@ function DetailsContent({
       </div>
 
       <dl className="space-y-3 text-sm">
-        <div className="space-y-2">
+        <div className="mt-6 space-y-1.5">
           <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Timeline</dt>
           <dd>Delivered in {tier.timeline}.</dd>
         </div>
 
-        <div className="space-y-2">
+        <div className="mt-6 space-y-1.5">
           <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Best for</dt>
           <dd>{variant?.bestFor ?? tier.bestFor}</dd>
         </div>
 
-        <div className="space-y-2">
-          <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Core goal</dt>
+        <div className="mt-6 space-y-1.5">
+          <dt className="flex justify-between items-center gap-2 text-xs uppercase tracking-wider text-[var(--muted)]">
+            Core goal
+            <span>
+              {
+                tier.id == "tier-1" ? "Including available templates" : 
+                tier.id == "tier-3" ? "Including application Types" : null
+              }
+            </span>
+          </dt>
           <dd>{variant?.coreGoal ?? tier.coreGoal}</dd>
         </div>
 
-        <div className="space-y-2">
-          <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Benefits</dt>
+        <div className="mt-6 space-y-1.5">
+          <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Tier Benefits</dt>
           <dd>
             <ul className="list-disc space-y-1.5 pl-5 marker:text-[var(--muted)]">
               {tier.benefits.map((benefit) => (
@@ -431,7 +402,7 @@ function DetailsContent({
         </div>
 
         {extras.map((group) => (
-          <div key={group.title} className="space-y-2">
+          <div key={group.title} className="mt-6 space-y-1.5">
             <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">{group.title}</dt>
             <dd>
               <ul className="space-y-2">
@@ -452,25 +423,7 @@ function DetailsContent({
   );
 }
 
-function SummaryDialog({
-  tier,
-  variant,
-  selectedAddOns,
-  selectedSystems,
-  oneTime,
-  monthly,
-  hasCustom,
-  onClose,
-}: {
-  tier: Tier;
-  variant: Variant | undefined;
-  selectedAddOns: AddOn[];
-  selectedSystems: System[];
-  oneTime: number;
-  monthly: number;
-  hasCustom: boolean;
-  onClose: () => void;
-}) {
+function SummaryDialog({ tier, variant, selectedAddOns, selectedSystems, oneTime, monthly, hasCustom, onClose }: { tier: Tier; variant: Variant | undefined; selectedAddOns: AddOn[]; selectedSystems: System[]; oneTime: number; monthly: number; hasCustom: boolean; onClose: () => void }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -632,7 +585,6 @@ export default function Services() {
     selectedAddOns.filter((item) => !item.monthly).reduce((sum, item) => sum + item.price, 0);
 
   const monthly = selectedAddOns.filter((item) => item.monthly).reduce((sum, item) => sum + item.price, 0);
-
   const hasCustom = selectedAddOns.some((item) => item.custom) || selectedSystems.some((item) => item.custom);
 
   const closeDialog = useCallback(() => setDialogOpen(false), []);
@@ -745,23 +697,30 @@ export default function Services() {
                 <h3 className={sectionTitleClass}>Interactive systems</h3>
 
                 <div className="flex flex-wrap gap-2" role="group" aria-label="Interactive systems">
-                  {systems.map((item) => {
-                    const active = selectedSystemIds.includes(item.id);
+                  {systems
+                    .slice()
+                    .sort((a, b) => {
+                      if (a.price === 0 && b.price !== 0) return 1;
+                      if (b.price === 0 && a.price !== 0) return -1;
+                      return a.price - b.price;
+                    })
+                    .map((item) => {
+                      const active = selectedSystemIds.includes(item.id);
 
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        aria-pressed={active}
-                        title={item.description}
-                        onClick={() => toggleSystem(item.id)}
-                        className={pillClass(active)}
-                      >
-                        <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
-                        {item.name}
-                        <PriceTag price={item.price} custom={item.custom} />
-                      </button>
-                    );
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          aria-pressed={active}
+                          title={item.description}
+                          onClick={() => toggleSystem(item.id)}
+                          className={pillClass(active)}
+                        >
+                          <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
+                          {item.name}
+                          <PriceTag price={item.price} custom={item.custom} />
+                        </button>
+                      );
                   })}
                 </div>
               </div>
@@ -771,23 +730,30 @@ export default function Services() {
               <h3 className={sectionTitleClass}>Add-on expansions</h3>
 
               <div className="flex flex-wrap gap-2" role="group" aria-label="Add-on expansions">
-                {addOns.map((item) => {
-                  const active = selectedAddOnIds.includes(item.id);
+                {addOns
+                  .slice()
+                  .sort((a, b) => {
+                    if (a.price === 0 && b.price !== 0) return 1;
+                    if (b.price === 0 && a.price !== 0) return -1;
+                    return a.price - b.price;
+                  })
+                  .map((item) => {
+                    const active = selectedAddOnIds.includes(item.id);
 
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      aria-pressed={active}
-                      title={item.description}
-                      onClick={() => toggleAddOn(item.id)}
-                      className={pillClass(active)}
-                    >
-                      <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
-                      {item.name}
-                      <PriceTag price={item.price} monthly={item.monthly} custom={item.custom} />
-                    </button>
-                  );
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        aria-pressed={active}
+                        title={item.description}
+                        onClick={() => toggleAddOn(item.id)}
+                        className={pillClass(active)}
+                      >
+                        <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
+                        {item.name}
+                        <PriceTag price={item.price} monthly={item.monthly} custom={item.custom} />
+                      </button>
+                    );
                 })}
               </div>
             </div>
