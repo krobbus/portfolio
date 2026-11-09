@@ -2,15 +2,16 @@ import LoadingImage from '../components/LoadingImage';
 import { Link } from 'react-router-dom';
 
 const interests = [
-  { label: 'Like to play chess', icon: 'fa-chess-knight', position: 'top-2 right-[88%]', delay: '0s' },
-  { label: 'Love listening to music', icon: 'fa-music', position: 'top-[32%] right-[96%]', delay: '-1.4s' },
-  { label: 'Like to draw and sketch faces', icon: 'fa-pencil', position: 'top-[62%] right-[84%]', delay: '-2.6s' },
+  { label: 'Love listening to music', icon: 'fa-music', position: 'top-2 right-[78%]', delay: '-1.4s' },
+  { label: 'Good at playing chess', icon: 'fa-chess-knight', position: 'top-[26%] right-[88%]', delay: '-2.6s' },
+  { label: 'Like to draw and sketch faces', icon: 'fa-pencil', position: 'top-[56%] right-[98%]', delay: '-1.4s' },
+  { label: 'Love going on adventure', icon: 'fa-running', position: 'top-[76%] right-[78%]', delay: '-2.6s' },
 ];
 
 const stack = [
   {
     title: 'Frontend',
-    items: ['HTML5', 'CSS3/SASS', 'JavaScript', 'Phaser.js', 'React', 'React Hooks', 'React Router', 'TypeScript', 'Tailwind CSS', 'Vite'],
+    items: ['HTML5', 'CSS3/SASS', 'JavaScript', 'Phaser.js', 'React', 'TypeScript', 'Tailwind CSS', 'Vite'],
   },
   {
     title: 'Backend and databases',
@@ -51,7 +52,7 @@ function InterestBubbles() {
           className={`pointer-events-none absolute z-20 translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:translate-x-0 group-focus-within:opacity-100 ${interest.position}`}
         >
           <span
-            className="invert relative flex items-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--border)] bg-[var(--bg)] px-3 py-1.5 font-sans text-xs text-[var(--fg)] shadow-lg"
+            className="interest-bubble invert relative flex items-center gap-2 whitespace-nowrap rounded-2xl border border-[var(--border)] bg-[var(--bg)] px-3 py-1.5 font-sans text-xs text-[var(--fg)] shadow-lg"
             style={{ animationDelay: interest.delay }}
           >
             <i className={`fa-solid ${interest.icon} text-[var(--muted)]`}></i>
@@ -71,10 +72,10 @@ export default function About() {
       </header>
 
       <section className="flow-root space-y-4">
-        <style>{floatStyles}</style>
-
         <div className="float-right mb-3 ml-5 w-38 space-y-4 sm:w-48">
           <div className="group relative" tabIndex={0} aria-label="Alef Justin Loresca, hover to see interests">
+            <style>{floatStyles}</style>
+
             <LoadingImage
               src="/profile.png"
               alt="Alef Justin Loresca"
@@ -82,6 +83,7 @@ export default function About() {
               className="block w-full h-full rounded-full object-cover duration-200 group-hover:filter-none"
               draggable={false}
             />
+
             <InterestBubbles />
           </div>
         </div>
