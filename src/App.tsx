@@ -11,7 +11,11 @@ import Contact from './pages/Contact.tsx';
 import Game from './pages/Game.tsx';
 import NotFound from './pages/NotFound.tsx';
 
+import usePageTitle from './hooks/usePageTitle.ts';
+
 export default function App() {
+  usePageTitle();
+
   return (
     <>
       <Analytics />
