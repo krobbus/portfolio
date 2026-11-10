@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { socials } from '../constants/SocialRef';
+import CustomCursor from './CustomCursor';
 import CustomScrollbar from './CustomScrollbar';
 
 const links = [
@@ -12,14 +13,9 @@ const links = [
   { to: '/contact', label: 'Contact', icon: 'fa-envelope' },
 ];
 
-const fadeLabel =
-  'whitespace-nowrap transition-opacity duration-200 md:max-lg:opacity-0 md:max-lg:group-hover/nav:opacity-100 md:max-lg:group-focus-within/nav:opacity-100';
-
-const collapsedOnly =
-  'hidden md:max-lg:flex md:max-lg:group-hover/nav:hidden md:max-lg:group-focus-within/nav:hidden';
-
-const expandedOnly =
-  'flex md:max-lg:hidden md:max-lg:group-hover/nav:flex md:max-lg:group-focus-within/nav:flex';
+const fadeLabel = 'whitespace-nowrap transition-opacity duration-200 md:max-lg:opacity-0 md:max-lg:group-hover/nav:opacity-100 md:max-lg:group-focus-within/nav:opacity-100';
+const collapsedOnly = 'hidden md:max-lg:flex md:max-lg:group-hover/nav:hidden md:max-lg:group-focus-within/nav:hidden';
+const expandedOnly = 'flex md:max-lg:hidden md:max-lg:group-hover/nav:flex md:max-lg:group-focus-within/nav:flex';
 
 function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
   return (
@@ -113,92 +109,6 @@ function MobileScrollProgress() {
         className="block h-full origin-left bg-[var(--fg)]"
         style={{ transform: `scaleX(${progress})` }}
       />
-    </div>
-  );
-}
-
-function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const cursor = cursorRef.current;
-    if (!cursor) return;
-
-    const interactiveSelector = 'a, button, input, textarea, select, summary, [role="button"], [tabindex]:not([tabindex="-1"])';
-
-    const handlePointerMove = (event: PointerEvent) => {
-      cursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`;
-      cursor.classList.add('is-visible');
-      const target = document.elementFromPoint(event.clientX, event.clientY);
-      cursor.classList.toggle(
-        'is-interactive',
-        target instanceof Element && Boolean(target.closest(interactiveSelector))
-      );
-    };
-
-    const handlePointerLeave = () => {
-      cursor.classList.remove('is-visible', 'is-interactive');
-    };
-    const handleGameCursorMessage = (event: MessageEvent<unknown>) => {
-      const gameFrame = document.querySelector<HTMLIFrameElement>('[data-custom-cursor-frame]');
-      if (
-        !gameFrame ||
-        event.source !== gameFrame.contentWindow ||
-        event.origin !== window.location.origin ||
-        typeof event.data !== 'object' ||
-        event.data === null
-      ) {
-        return;
-      }
-
-      const message = event.data as { type?: unknown; x?: unknown; y?: unknown };
-      if (message.type === 'game-cursor-leave') {
-        cursor.classList.remove('is-visible', 'is-interactive');
-      } else if (
-        message.type === 'game-cursor-move' &&
-        typeof message.x === 'number' &&
-        typeof message.y === 'number'
-      ) {
-        cursor.classList.remove('is-visible', 'is-interactive', 'is-grabbing');
-      }
-    };
-    const handlePointerDown = (event: PointerEvent) => {
-      if (event.target instanceof Element && event.target.closest('[data-custom-grab]')) {
-        cursor.classList.add('is-grabbing');
-      }
-    };
-    const handlePointerEnd = () => {
-      cursor.classList.remove('is-grabbing');
-    };
-    const handleWindowBlur = () => {
-      cursor.classList.remove('is-visible', 'is-interactive', 'is-grabbing');
-    };
-
-    window.addEventListener('pointermove', handlePointerMove);
-    window.addEventListener('pointerleave', handlePointerLeave);
-    window.addEventListener('pointerdown', handlePointerDown, true);
-    window.addEventListener('pointerup', handlePointerEnd, true);
-    window.addEventListener('pointercancel', handlePointerEnd, true);
-    window.addEventListener('blur', handleWindowBlur);
-    window.addEventListener('message', handleGameCursorMessage);
-
-    return () => {
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerleave', handlePointerLeave);
-      window.removeEventListener('pointerdown', handlePointerDown, true);
-      window.removeEventListener('pointerup', handlePointerEnd, true);
-      window.removeEventListener('pointercancel', handlePointerEnd, true);
-      window.removeEventListener('blur', handleWindowBlur);
-      window.removeEventListener('message', handleGameCursorMessage);
-    };
-  }, []);
-
-  return (
-    <div ref={cursorRef} className="custom-cursor" aria-hidden="true">
-      <svg viewBox="0 0 24 28">
-        <path d="M2 1 21 17h-9l-4 10z" />
-        <path className="grabbing-hand" d="M8 13V7a1.5 1.5 0 0 1 3 0v4-6a1.5 1.5 0 0 1 3 0v6-5a1.5 1.5 0 0 1 3 0v6-3a1.5 1.5 0 0 1 3 0v7c0 4-2.5 7-6.5 7h-1c-2.5 0-4-1-5.5-3l-3-4a1.5 1.5 0 0 1 2.5-1.7L8 16z" />
-      </svg>
     </div>
   );
 }

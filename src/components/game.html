@@ -49,13 +49,8 @@
       const MONSTER_KEYS = ["monster-1", "monster-2", "monster-3", "monster-4"];
 
       const sendCursorMessage = (message) => {
-        if (window.parent === window || !window.frameElement) return;
-        const frameBounds = window.frameElement.getBoundingClientRect();
-        if (message.type === "game-cursor-move") {
-          message.x += frameBounds.left;
-          message.y += frameBounds.top;
-        }
-        window.parent.postMessage(message, window.location.origin);
+        if (window.parent === window) return;
+        window.parent.postMessage(message, "*");
       };
 
       document.addEventListener("pointermove", (event) => {
@@ -66,7 +61,7 @@
         });
       });
 
-      document.addEventListener("pointerleave", () => {
+      document.documentElement.addEventListener("pointerleave", () => {
         sendCursorMessage({ type: "game-cursor-leave" });
       });
 
