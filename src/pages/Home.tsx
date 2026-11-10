@@ -257,6 +257,15 @@ export default function Home() {
           </li>
 
           <li>
+            <Link to="/services" className="group flex items-center justify-between py-3 duration-400 hover:px-4 hover:bg-[var(--muted)]/20">
+              <span className="transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]">
+                Available services
+              </span>
+              <i className="fa-solid fa-arrow-right text-sm transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]"></i>
+            </Link>
+          </li>
+
+          <li>
             <Link to="/contact" className="group flex items-center justify-between py-3 duration-400 hover:px-4 hover:bg-[var(--muted)]/20">
               <span className="transition-colors duration-200 group-hover:text-[var(--fg)] group-focus-visible:text-[var(--fg)]">
                 Get in touch

@@ -22,16 +22,16 @@ function ProjectList() {
             data-scroll-bookmark-image={project.slides[0]?.src}
             className="border-t border-[var(--border)] pt-8"
           >
-            <div className="flex items-start gap-4 sm:gap-6">
+            <div className="flex flex-col items-start gap-4 sm:gap-6 sm:flex-row">
               <Link
                 to={path}
                 aria-label={`View details: ${project.title}`}
-                className="group block aspect-[4/3] w-32 shrink-0 overflow-hidden border border-[var(--border)] bg-black sm:w-56"
+                className="group block aspect-[4/2] shrink-0 overflow-hidden border border-[var(--border)] bg-black sm:w-56"
               >
                 <LoadingImage
                   src={project.slides[0].src}
                   alt={project.slides[0].caption}
-                  className="block h-full w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                  className="block h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                   wrapperClassName="block h-full w-full"
                 />
               </Link>
@@ -49,7 +49,7 @@ function ProjectList() {
                   {project.description}
                 </p>
 
-                <p className="line-clamp-3 text-sm text-[var(--muted)] sm:line-clamp-4 sm:text-base">
+                <p className="mt-10 line-clamp-3 text-sm text-[var(--muted)] sm:line-clamp-4 sm:text-base">
                   {project.summary}
                 </p>
 
