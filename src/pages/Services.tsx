@@ -2,6 +2,8 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNod
 import { type Variant, type Tier, type AddOn, type System, tiers, addOns, systems } from '../constants/ServicesRef';
 import emailjs from '@emailjs/browser';
 
+const COLLAPSED_HEIGHT = 176;
+
 const formatPrice = (value: number) => `$${value.toLocaleString('en-US')}`;
 const getAddOnPrice = (item: AddOn, tierId: string) => item.priceByTier?.[tierId] ?? item.price;
 
@@ -30,6 +32,81 @@ function PriceTag({ price, monthly = false, custom = false, included = false }: 
       +{formatPrice(price)}
       {monthly ? '/mo' : ''}
     </span>
+  );
+}
+
+function CollapsibleContent({ children, label }: { children: ReactNode; label: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [contentHeight, setContentHeight] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const regionId = useId();
+
+  useEffect(() => {
+    const element = contentRef.current;
+    if (!element) return;
+
+    const measure = () => setContentHeight(element.offsetHeight);
+    measure();
+
+    const resizeObserver = new ResizeObserver(measure);
+    resizeObserver.observe(element);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  const overflowing = contentHeight > COLLAPSED_HEIGHT + 24;
+  const collapsed = overflowing && !expanded;
+
+  return (
+    <div className="space-y-3">
+      <div
+        id={regionId}
+        className="relative overflow-hidden transition-[max-height] duration-500 ease-out motion-reduce:transition-none"
+        style={{ maxHeight: overflowing ? (expanded ? contentHeight : COLLAPSED_HEIGHT) : undefined }}
+      >
+        <div ref={contentRef}>{children}</div>
+
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-linear-to-t from-[var(--bg)] via-[var(--bg)]/70 to-transparent backdrop-blur-[3px] transition-opacity duration-300 [mask-image:linear-gradient(to_top,black_40%,transparent)] ${
+            collapsed ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+
+        {collapsed && (
+          <button
+            type="button"
+            onClick={() => setExpanded(true)}
+            aria-expanded={false}
+            aria-controls={regionId}
+            aria-label={`View more ${label}`}
+            className="group absolute inset-x-0 bottom-0 z-10 flex cursor-pointer items-center justify-center gap-2 pb-1 text-xs font-semibold uppercase tracking-widest text-[var(--fg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+          >
+            <span className="underline-offset-4 group-hover:underline">View more</span>
+            <i
+              className="fa-solid fa-chevron-down text-[10px] transition-transform duration-200 group-hover:translate-y-0.5"
+              aria-hidden="true"
+            ></i>
+          </button>
+        )}
+      </div>
+
+      {overflowing && expanded && (
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          aria-expanded
+          aria-controls={regionId}
+          aria-label={`Show less ${label}`}
+          className="group mx-auto flex cursor-pointer items-center justify-center gap-2 text-xs font-semibold uppercase tracking-widest text-[var(--muted)] transition-colors duration-200 hover:text-[var(--fg)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)]"
+        >
+          <span className="underline-offset-4 group-hover:underline">Show less</span>
+          <i
+            className="fa-solid fa-chevron-up text-[10px] transition-transform duration-200 group-hover:-translate-y-0.5"
+            aria-hidden="true"
+          ></i>
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -178,14 +255,16 @@ function DetailsContent({ tier, variant, selectedAddOns, selectedSystems } : { t
           <div className="mt-6 space-y-1.5">
             <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Core details</dt>
             <dd>
-              <ul className="list-disc space-y-2 pl-5 marker:text-[var(--muted)]">
-                {variant.coreDetails.map((item) => (
-                  <li key={`${variant.id}-${item.header}`}>
-                    <span className="font-semibold text-[var(--fg)]">{item.header}:</span>{' '}
-                    <span className="text-[var(--muted)]">{item.detail}</span>
-                  </li>
-                ))}
-              </ul>
+              <CollapsibleContent key={variant.id} label="core details">
+                <ul className="list-disc space-y-2 pl-5 marker:text-[var(--muted)]">
+                  {variant.coreDetails.map((item) => (
+                    <li key={`${variant.id}-${item.header}`}>
+                      <span className="font-semibold text-[var(--fg)]">{item.header}:</span>{' '}
+                      <span className="text-[var(--muted)]">{item.detail}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CollapsibleContent>
             </dd>
           </div>
         )}
