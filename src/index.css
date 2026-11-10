@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Sentient';
+  src: url('/fonts/Sentient-Extralight.otf') format('opentype');
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Amulya';
+  src: url('/fonts/Amulya-Regular.otf') format('opentype');
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg: #f7f5f1;
   --fg: #111111;
@@ -39,8 +53,8 @@ body {
   font-family: var(--body);
 }
 
-.font-serif { font-family: 'Cormorant Garamond', Georgia, serif; }
-.font-sans { font-family: 'Plus Jakarta Sans', Arial, sans-serif; }
+.font-serif { font-family: 'Sentient', Georgia, serif; }
+.font-sans { font-family: 'Amulya', Arial, sans-serif; }
 
 html.theme-fade,
 html.theme-fade body,
