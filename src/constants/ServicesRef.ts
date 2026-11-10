@@ -3,6 +3,7 @@ export type Variant = {
   name: string;
   bestFor: string;
   coreGoal: string;
+  coreDetails: Array<{ header: string; detail: string }>;
   price: number;
 };
 
@@ -16,6 +17,7 @@ export type Tier = {
   bestFor: string;
   coreGoal: string;
   benefits: string[];
+  sectionLimit?: number;
   variantLabel?: string;
   variants?: Variant[];
   hasSystems?: boolean;
@@ -28,6 +30,8 @@ export type AddOn = {
   monthly?: boolean;
   description: string;
   custom?: boolean;
+  tierIds?: string[];
+  priceByTier?: Partial<Record<string, number>>;
 };
 
 export type System = {
@@ -48,41 +52,68 @@ export const tiers: Tier[] = [
     bestFor: 'Those who need a high-converting site deployed fast.',
     coreGoal: 'A polished, ready-to-launch site that turns visitors into customers.',
     benefits: [
-      'Custom-styled, clean and modern UI',
+      'Fast turnaround with a ready-to-launch structure',
+      'templated-styled, clean and modern UI',
       'High-performance, fully mobile responsive, and speed optimization',
       'Search Engine Optimization (SEO) optimized metadata structure for better search visibility',
-      'Built-in booking/contact form linked straight to your email',
+      'Built-in quotation/booking/contact form linked straight to your email',
       'Social media links and direct chat integration',
-      'Fast turnaround with a ready-to-launch structure',
+      'A concise, conversion-focused structure that can replace unused sections or core goals with stronger page priorities',
     ],
     variantLabel: 'Available templates',
     variants: [
       {
         id: 'local',
         name: 'The Local Service Business',
-        bestFor: 'Cleaning services, plumbing, repair shops, dental clinics, salons, or contractors.',
-        coreGoal: 'Drive phone calls, instant quote requests, or calendar appointments.',
+        bestFor: 'Ideal for local service providers, neighborhood contractors, tradespeople, and appointment-based businesses looking to establish an immediate, professional web presence and turn local search traffic into direct customer inquiries.',
+        coreGoal: 'Drive phone calls, instant quote requests, and scheduled appointments by seamlessly guiding local customers through a high-converting structure.',
+        coreDetails: [
+          { header: 'Hero Section', detail: 'Captures immediate local attention with a clear value proposition, compelling headline, and instant call-to-action button.' },
+          { header: 'Trust Points Banner', detail: 'Instantly builds local credibility and consumer confidence through verified badges, licenses, and guarantees.' },
+          { header: 'How It Works (Step-by-Step Guide)', detail: 'Simplifies the customer journey by breaking down your booking or service process into clear, friction-free steps.' },
+          { header: 'Our Services (with Recommended Service)', detail: 'Showcases your core offerings transparently, highlighting your most popular or recommended local service package.' },
+          { header: 'Customer Testimonials', detail: 'Leverages local social proof and authentic reviews to reassure hesitant visitors.' },
+          { header: 'Service Area & Business Hours', detail: 'Displays your exact operational radius, service locations, and working hours so local customers know immediately if you serve their area and when you are open.' },
+          { header: 'Contact Section (Request a Quote)', detail: 'Converts active intent into leads with a streamlined, direct inquiry form linked straight to your email.' },
+          { header: 'Footer (Social Links)', detail: 'Anchors the page professionally with essential contact details, business hours, and social channels.' },
+        ],
         price: 0,
       },
       {
         id: 'ecommerce',
         name: 'The E-Commerce & Product Showcase',
         bestFor: 'Independent clothing brands, boutique food products, artisan crafts, or physical gadgets.',
-        coreGoal: 'Direct product purchase, add-to-cart conversions, and visual storytelling.',
-        price: 0,
-      },
-      {
-        id: 'creator',
-        name: 'The Digital Creator, Coach, or SaaS',
-        bestFor: 'Course creators, fitness coaches, consultants, or B2B software tools.',
-        coreGoal: 'Lead capture (email list building), webinar signups, or software free trials.',
+        coreGoal: 'Drive direct product sales, seamless checkouts, and high-engagement visual storytelling by guiding shoppers through an immersive retail layout.',
+        coreDetails: [
+          { header: 'Hero Section', detail: 'Captures customer attention immediately with striking product imagery, a compelling value proposition, and an urgent shop-now call to action.' },
+          { header: 'Brand Partnership Banner (or Announcement Bar)', detail: 'Showcases trusted brand collaborations, retailer stockists, or flexible top-bar promotional notices.' },
+          { header: 'About Section (with Gallery Display)', detail: 'Tells your brand\'s unique story while visually displaying product craftsmanship and lifestyle shots.' },
+          { header: 'Product Display Section (with Order via Link & Inquire via Email)', detail: 'Showcases featured items cleanly, offering direct purchase pathways and quick inquiry options for custom sizes or bulk orders.' },
+          { header: 'Brand Values Section', detail: 'Highlights what makes your products unique, such as ethical sourcing, premium materials, or sustainable packaging.' },
+          { header: 'Customer Reviews', detail: 'Builds social proof and consumer confidence through authentic buyer feedback and ratings.' },
+          { header: 'Trust Built-In', detail: 'Reinforces purchase security with secure checkout badges, clear return policies, and shipping guarantees.' },
+          { header: 'Frequently Asked Questions (FAQ)', detail: 'Eliminates pre-purchase hesitation and reduces support inquiries by clearly answering common customer questions about shipping, returns, sizing, and product care.'},
+          { header: 'Contact Section', detail: 'Makes it easy for customers to reach out with order questions, support inquiries, or wholesale requests.' },
+          { header: 'Footer (with Social Links)', detail: 'Anchors the page with vital policy links, newsletter sign-ups, and active social media channels.' },
+        ],
         price: 0,
       },
       {
         id: 'portfolio',
         name: 'The Portfolio & Creative Agency',
         bestFor: 'Graphic designers, videographers, architecture firms, or creative freelancers.',
-        coreGoal: 'Showcasing past work, establishing elite aesthetic taste, and booking discovery calls.',
+        coreGoal: 'Showcase past work, establish elite aesthetic taste, and drive discovery call bookings by guiding creative clients through a sophisticated, high-end visual experience.',
+        coreDetails: [
+          { header: 'Theme Toggle (Light & Dark Mode)', detail: 'Lets visitors experience the portfolio in both clean light and sleek dark aesthetics.' },
+          { header: 'Hero Section', detail: 'Captures attention instantly with bold typography, a stunning creative statement, and a direct call to action.' },
+          { header: 'Teams We\'ve Worked With / Partnerships Banner', detail: 'Builds instant high-tier credibility by displaying logos of past collaborators, brands, or media outlets.' },
+          { header: 'Business / Project Works Section', detail: 'Displays your best case studies and visual portfolio pieces in an immersive grid or gallery layout.' },
+          { header: 'Service Section', detail: 'Clearly breaks down your specialized creative capabilities and brand identity with descriptive overviews.' },
+          { header: 'Packages Section (with Recommended Package)', detail: 'Outlines your fixed-rate tiers or engagement options, highlighting a popular "Recommended" package to guide client selection.' },
+          { header: 'Client Testimonials / Social Proof', detail: 'Builds instant authority and trust by showcasing authentic reviews, quotes, or case study results from past satisfied clients and brands.'},
+          { header: 'Contact Section', detail: 'Converts browsing prospects into leads with a streamlined inquiry form for project proposals or consultations.' },
+          { header: 'Footer (with Social Links)', detail: 'Anchors the page professionally with essential copyright details, quick links, and active creative social channels.' },
+        ],
         price: 0,
       },
     ],
@@ -98,16 +129,18 @@ export const tiers: Tier[] = [
       'Brands that need a totally unique layout, custom animations, brand-specific design systems, or specialized workflows.',
     coreGoal: 'A distinctive, brand-defining web presence that stands apart from template sites.',
     benefits: [
-      '100% custom-designed UI/UX tailored to your brand',
-      'Advanced layout styling, custom component architecture, and smooth scroll animations',
-      'Multi-step interactive lead capture or quote-request forms',
-      'Search Engine Optimization (SEO) optimized metadata structure for better search visibility',
       'Priority support and 1 month of minor tweaks post-launch',
+      '100% custom-designed UI/UX tailored to your brand with advanced layout styling and custom architecture',
+      'Search Engine Optimization (SEO) optimized metadata structure for better search visibility',
+      'Built-in quotation/booking/contact form linked straight to your email',
+      'Social media links and direct chat integration',
+      'A custom section strategy limited to 10 focused sections/core goals to keep the page clear, persuasive, and conversion-first',
     ],
+    sectionLimit: 10,
   },
   {
     id: 'tier-3',
-    name: 'Web Systems & Applications',
+    name: 'Web Systems',
     label: 'Tier 3',
     price: 249,
     negotiable: true,
@@ -116,30 +149,14 @@ export const tiers: Tier[] = [
       'Businesses and teams that need working software: dashboards, stores, internal tools, or customer-facing platforms.',
     coreGoal: 'Replace manual, scattered workflows with a secure, reliable system built around how you operate.',
     benefits: [
-      'Full-stack architecture with a database, API, and authentication tailored to your workflow',
-      'Responsive, accessible interface built with modern React and TypeScript',
+      'Priority support and 1 month of minor fixes post-launch',
+      'Responsive full-stack architecture with a database, API, and authentication tailored to your workflow',
       'Role-based access control for admins, staff, and customers',
       'Deployment to production with environment and security configuration',
       'Clear documentation and a handover walkthrough',
-      'Priority support and 1 month of minor fixes post-launch',
+      'Built for scalable systems with a clear limit of 1 section per core workflow and room to expand as the product grows',
     ],
-    variantLabel: 'Application types',
-    variants: [
-      {
-        id: 'spa',
-        name: 'Single-Page Application (SPA)',
-        bestFor: 'Dashboards, trackers, calculators, and tools that benefit from instant, app-like interaction.',
-        coreGoal: 'A fast, fluid experience where users work without full page reloads.',
-        price: 0,
-      },
-      {
-        id: 'mpa',
-        name: 'Multi-Page Application',
-        bestFor: 'Content-rich platforms, marketplaces, and portals with many distinct sections and routes.',
-        coreGoal: 'Clear structure, shareable pages, and strong search visibility across a larger product.',
-        price: 50,
-      },
-    ],
+    sectionLimit: 10,
     hasSystems: true,
   },
 ];
@@ -152,6 +169,8 @@ export const addOns: AddOn[] = [
     monthly: true,
     description:
       'Security updates, uptime monitoring, performance optimization, and minor content edits to keep your site running smoothly',
+    tierIds: ['tier-1', 'tier-2', 'tier-3'],
+    priceByTier: { 'tier-1': 20, 'tier-2': 25, 'tier-3': 35 },
   },
   {
     id: 'branding',
@@ -159,13 +178,8 @@ export const addOns: AddOn[] = [
     price: 30,
     description:
       'Consistent visual identity styling, typography pairing, custom color schemes, and brand asset integration',
-  },
-  {
-    id: 'booking',
-    name: 'Appointment & Event Booking Calendar',
-    price: 45,
-    description:
-      'Interactive scheduling widgets, direct calendar synchronization, automated client reminders, and time-slot management',
+    tierIds: ['tier-1', 'tier-2'],
+    priceByTier: { 'tier-1': 30, 'tier-2': 45 },
   },
   {
     id: 'analytics',
@@ -173,6 +187,26 @@ export const addOns: AddOn[] = [
     price: 25,
     description:
       'Privacy-friendly analytics, event and goal tracking, and a simple report so you can see what is working',
+    tierIds: ['tier-1', 'tier-2', 'tier-3'],
+    priceByTier: { 'tier-1': 25, 'tier-2': 35, 'tier-3': 50 },
+  },
+  {
+    id: 'cms',
+    name: 'CMS / Content Editing Access',
+    price: 50,
+    description:
+      'Editable blog, service, or product content blocks so you can update pages without waiting on developer support',
+    tierIds: ['tier-1', 'tier-2', 'tier-3'],
+    priceByTier: { 'tier-1': 50, 'tier-2': 70, 'tier-3': 100 },
+  },
+  {
+    id: 'extra-section',
+    name: 'Extra Section / Core Goal Block',
+    price: 40,
+    description:
+      'Adds one more strategic section or key conversion block to extend the page without losing clarity or momentum',
+    tierIds: ['tier-1', 'tier-2', 'tier-3'],
+    priceByTier: { 'tier-1': 40, 'tier-2': 60, 'tier-3': 90 },
   },
   {
     id: 'other-addons',
@@ -181,8 +215,9 @@ export const addOns: AddOn[] = [
     custom: true,
     description:
       'Request custom add-ons tailored specifically to your unique business requirements and operational workflows',
+    tierIds: ['tier-1', 'tier-2', 'tier-3'],
   },
-];
+]
 
 export const systems: System[] = [
   {

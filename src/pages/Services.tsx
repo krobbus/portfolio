@@ -3,6 +3,7 @@ import { type Variant, type Tier, type AddOn, type System, tiers, addOns, system
 import emailjs from '@emailjs/browser';
 
 const formatPrice = (value: number) => `$${value.toLocaleString('en-US')}`;
+const getAddOnPrice = (item: AddOn, tierId: string) => item.priceByTier?.[tierId] ?? item.price;
 
 const pillClass = (active: boolean) =>
   `inline-flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-left text-sm transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--fg)] ${
@@ -156,18 +157,38 @@ function DetailsContent({ tier, variant, selectedAddOns, selectedSystems } : { t
           <dd>{variant?.bestFor ?? tier.bestFor}</dd>
         </div>
 
+        {tier.sectionLimit && (
+          <div className="mt-6 space-y-1.5">
+            <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Section limit</dt>
+            <dd>Up to {tier.sectionLimit} focused sections or core goals.</dd>
+          </div>
+        )}
+
         <div className="mt-6 space-y-1.5">
           <dt className="flex justify-between items-center gap-2 text-xs uppercase tracking-wider text-[var(--muted)]">
             Core goal
             <span>
-              {
-                tier.id == "tier-1" ? "Including available templates" : 
-                tier.id == "tier-3" ? "Including application Types" : null
-              }
+              {variant?.coreDetails?.length ? 'Including structure' : null}
             </span>
           </dt>
           <dd>{variant?.coreGoal ?? tier.coreGoal}</dd>
         </div>
+
+        {variant?.coreDetails && variant.coreDetails.length > 0 && (
+          <div className="mt-6 space-y-1.5">
+            <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Core details</dt>
+            <dd>
+              <ul className="list-disc space-y-2 pl-5 marker:text-[var(--muted)]">
+                {variant.coreDetails.map((item) => (
+                  <li key={`${variant.id}-${item.header}`}>
+                    <span className="font-semibold text-[var(--fg)]">{item.header}:</span>{' '}
+                    <span className="text-[var(--muted)]">{item.detail}</span>
+                  </li>
+                ))}
+              </ul>
+            </dd>
+          </div>
+        )}
 
         <div className="mt-6 space-y-1.5">
           <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Tier Benefits</dt>
@@ -348,8 +369,12 @@ export default function Services() {
   const selectedVariant = selectedTier.variants?.find((variant) => variant.id === selectedVariantId);
 
   const selectedAddOns = useMemo(
-    () => addOns.filter((item) => selectedAddOnIds.includes(item.id)),
-    [selectedAddOnIds]
+    () =>
+      addOns.filter((item) => selectedAddOnIds.includes(item.id)).map((item) => ({
+        ...item,
+        price: getAddOnPrice(item, selectedTierId),
+      })),
+    [selectedAddOnIds, selectedTierId]
   );
 
   const selectedSystems = useMemo(
@@ -368,13 +393,26 @@ export default function Services() {
     selectedTier.price +
     (selectedVariant?.price ?? 0) +
     selectedSystems.reduce((sum, item) => sum + (item.id === freeSystemId ? 0 : item.price), 0) +
-    selectedAddOns.filter((item) => !item.monthly).reduce((sum, item) => sum + item.price, 0);
+    selectedAddOns
+      .filter((item) => !item.monthly)
+      .reduce((sum, item) => sum + getAddOnPrice(item, selectedTier.id), 0);
 
-  const monthly = selectedAddOns.filter((item) => item.monthly).reduce((sum, item) => sum + item.price, 0);
+  const monthly = selectedAddOns
+    .filter((item) => item.monthly)
+    .reduce((sum, item) => sum + getAddOnPrice(item, selectedTier.id), 0);
   const hasCustom = selectedAddOns.some((item) => item.custom) || selectedSystems.some((item) => item.custom);
 
   const closeDialog = useCallback(() => setDialogOpen(false), []);
   const closeDetails = useCallback(() => setDetailsOpen(false), []);
+
+  const visibleAddOns = useMemo(
+    () =>
+      addOns.filter((item) => {
+        if (!item.tierIds) return true;
+        return item.tierIds.includes(selectedTierId);
+      }),
+    [selectedTierId]
+  );
 
   const toggleAddOn = (id: string) => {
     setSelectedAddOnIds((current) =>
@@ -392,6 +430,13 @@ export default function Services() {
     setSelectedTierId(tier.id);
     setSelectedVariantId(tier.variants?.[0].id);
     if (!tier.hasSystems) setSelectedSystemIds([]);
+    setSelectedAddOnIds((current) =>
+      current.filter((id) => {
+        const item = addOns.find((addon) => addon.id === id);
+        if (!item?.tierIds) return true;
+        return item.tierIds.includes(tier.id);
+      })
+    );
   };
 
   const viewDetails = (tier: Tier) => {
@@ -517,15 +562,18 @@ export default function Services() {
               <h3 className={sectionTitleClass}>Add-on expansions</h3>
 
               <div className="flex flex-wrap gap-2" role="group" aria-label="Add-on expansions">
-                {addOns
+                {visibleAddOns
                   .slice()
                   .sort((a, b) => {
-                    if (a.price === 0 && b.price !== 0) return 1;
-                    if (b.price === 0 && a.price !== 0) return -1;
-                    return a.price - b.price;
+                    const aPrice = getAddOnPrice(a, selectedTierId);
+                    const bPrice = getAddOnPrice(b, selectedTierId);
+                    if (aPrice === 0 && bPrice !== 0) return 1;
+                    if (bPrice === 0 && aPrice !== 0) return -1;
+                    return aPrice - bPrice;
                   })
                   .map((item) => {
                     const active = selectedAddOnIds.includes(item.id);
+                    const displayPrice = getAddOnPrice(item, selectedTierId);
 
                     return (
                       <button
@@ -538,7 +586,7 @@ export default function Services() {
                       >
                         <i className={`fa-solid ${active ? 'fa-check' : 'fa-plus'} text-xs`} aria-hidden="true"></i>
                         {item.name}
-                        <PriceTag price={item.price} monthly={item.monthly} custom={item.custom} />
+                        <PriceTag price={displayPrice} monthly={item.monthly} custom={item.custom} />
                       </button>
                     );
                 })}
