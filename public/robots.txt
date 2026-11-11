@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
 User-agent: Googlebot-Image
-
 Disallow: /images/
 Sitemap: https://alefjustinloresca.vercel.app/sitemap.xml
