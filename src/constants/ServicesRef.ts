@@ -47,7 +47,8 @@ export const tiers: Tier[] = [
     id: 'tier-1',
     name: 'Template-Based Landing Page',
     label: 'Tier 1',
-    price: 89,
+    price: 149,
+    negotiable: true,
     timeline: '1 - 3 business days',
     bestFor: 'Those who need a high-converting site deployed fast.',
     coreGoal: 'A polished, ready-to-launch site that turns visitors into customers.',
@@ -122,7 +123,7 @@ export const tiers: Tier[] = [
     id: 'tier-2',
     name: 'Non-Templated Landing Page',
     label: 'Tier 2',
-    price: 129,
+    price: 199,
     negotiable: true,
     timeline: '3 - 5 business days',
     bestFor:
@@ -142,7 +143,7 @@ export const tiers: Tier[] = [
     id: 'tier-3',
     name: 'Web Systems',
     label: 'Tier 3',
-    price: 249,
+    price: 299,
     negotiable: true,
     timeline: '7 - 14 business days',
     bestFor:
@@ -170,7 +171,7 @@ export const addOns: AddOn[] = [
     description:
       'Security updates, uptime monitoring, performance optimization, and minor content edits to keep your site running smoothly',
     tierIds: ['tier-1', 'tier-2', 'tier-3'],
-    priceByTier: { 'tier-1': 20, 'tier-2': 25, 'tier-3': 35 },
+    priceByTier: { 'tier-1': 20, 'tier-2': 20, 'tier-3': 25 },
   },
   {
     id: 'branding',
@@ -178,8 +179,8 @@ export const addOns: AddOn[] = [
     price: 30,
     description:
       'Consistent visual identity styling, typography pairing, custom color schemes, and brand asset integration',
-    tierIds: ['tier-1', 'tier-2'],
-    priceByTier: { 'tier-1': 30, 'tier-2': 45 },
+    tierIds: ['tier-1', 'tier-2', 'tier-3'],
+    priceByTier: { 'tier-1': 30, 'tier-2': 30, 'tier-3': 35 },
   },
   {
     id: 'analytics',
@@ -187,8 +188,8 @@ export const addOns: AddOn[] = [
     price: 25,
     description:
       'Privacy-friendly analytics, event and goal tracking, and a simple report so you can see what is working',
-    tierIds: ['tier-1', 'tier-2', 'tier-3'],
-    priceByTier: { 'tier-1': 25, 'tier-2': 35, 'tier-3': 50 },
+    tierIds: ['tier-1', 'tier-2'],
+    priceByTier: { 'tier-1': 25, 'tier-2': 25 },
   },
   {
     id: 'cms',
@@ -197,7 +198,7 @@ export const addOns: AddOn[] = [
     description:
       'Editable blog, service, or product content blocks so you can update pages without waiting on developer support',
     tierIds: ['tier-1', 'tier-2', 'tier-3'],
-    priceByTier: { 'tier-1': 50, 'tier-2': 70, 'tier-3': 100 },
+    priceByTier: { 'tier-1': 50, 'tier-2': 50, 'tier-3': 60 },
   },
   {
     id: 'extra-section',
@@ -206,7 +207,7 @@ export const addOns: AddOn[] = [
     description:
       'Adds one more strategic section or key conversion block to extend the page without losing clarity or momentum',
     tierIds: ['tier-1', 'tier-2', 'tier-3'],
-    priceByTier: { 'tier-1': 40, 'tier-2': 60, 'tier-3': 90 },
+    priceByTier: { 'tier-1': 30, 'tier-2': 40, 'tier-3': 50 },
   },
   {
     id: 'other-addons',

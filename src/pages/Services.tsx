@@ -243,17 +243,17 @@ function DetailsContent({ tier, variant, selectedAddOns, selectedSystems } : { t
 
         <div className="mt-6 space-y-1.5">
           <dt className="flex justify-between items-center gap-2 text-xs uppercase tracking-wider text-[var(--muted)]">
-            Core goal
-            <span>
-              {variant?.coreDetails?.length ? 'Including structure' : null}
-            </span>
+            Core goal 
+            <span>{variant?.coreDetails?.length ? '(Based on Available Templates)' : null}</span>
           </dt>
           <dd>{variant?.coreGoal ?? tier.coreGoal}</dd>
         </div>
 
         {variant?.coreDetails && variant.coreDetails.length > 0 && (
           <div className="mt-6 space-y-1.5">
-            <dt className="text-xs uppercase tracking-wider text-[var(--muted)]">Core details</dt>
+            <dt className="flex justify-between items-center gap-2 text-xs uppercase tracking-wider text-[var(--muted)]">
+              Core details <span>{variant?.coreDetails?.length ? '(Based on Available Templates)' : null}</span>
+            </dt>
             <dd>
               <CollapsibleContent key={variant.id} label="core details">
                 <ul className="list-disc space-y-2 pl-5 marker:text-[var(--muted)]">
@@ -288,7 +288,10 @@ function DetailsContent({ tier, variant, selectedAddOns, selectedSystems } : { t
                 {group.items.map((item) => (
                   <li key={item.id} className="border-l-2 border-[var(--border)] pl-3">
                     <span className="block font-semibold">{item.name}</span>
-                    <span className="block text-[var(--muted)]">{item.description}</span>
+                    <span className="block text-[var(--muted)]">
+                      {['project', 'ecommerce', 'enterprise', 'learning'].includes(item.id) ? 'Examples: ' : ''}
+                      {item.description}
+                    </span>
                   </li>
                 ))}
               </ul>
