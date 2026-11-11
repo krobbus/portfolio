@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { certifications } from '../constants/CertificationRef';
 import { projects } from '../constants/ProjectRef';
@@ -8,6 +8,11 @@ type ContributionDay = {
   count: number;
   level: number;
 };
+
+const LABEL_COLUMN = 26;
+const MIN_CELL = 10;
+const CELL_GAP = 3;
+const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 
 function isContributionDay(value: unknown): value is ContributionDay {
   if (typeof value !== 'object' || value === null) return false;
@@ -25,6 +30,8 @@ function isContributionDay(value: unknown): value is ContributionDay {
 function ContributionCalendar() {
   const [contributions, setContributions] = useState<ContributionDay[] | null>(null);
   const [hasError, setHasError] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const atEndRef = useRef(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -62,6 +69,34 @@ function ContributionCalendar() {
     return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element || !contributions) return;
+
+    const scrollToEnd = () => {
+      element.scrollTo({ left: element.scrollWidth, behavior: 'instant' });
+    };
+
+    const handleScroll = () => {
+      atEndRef.current = element.scrollWidth - element.clientWidth - element.scrollLeft < 4;
+    };
+
+    atEndRef.current = true;
+    scrollToEnd();
+    element.addEventListener('scroll', handleScroll, { passive: true });
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (atEndRef.current) scrollToEnd();
+    });
+    resizeObserver.observe(element);
+    if (element.firstElementChild) resizeObserver.observe(element.firstElementChild);
+
+    return () => {
+      element.removeEventListener('scroll', handleScroll);
+      resizeObserver.disconnect();
+    };
+  }, [contributions]);
+
   if (hasError) {
     return <p className="text-xs text-[var(--muted)]">GitHub contributions are unavailable right now.</p>;
   }
@@ -91,76 +126,86 @@ function ContributionCalendar() {
     }
   });
 
+  const minWidth = LABEL_COLUMN + CELL_GAP + weeks.length * (MIN_CELL + CELL_GAP);
+
   return (
-    <div className="overflow-x-auto">
-      <div className="flex w-max gap-2">
-        <div
+    <div ref={scrollRef} className="w-full overflow-x-auto pb-1">
+      <div
+        role="img"
+        aria-label="GitHub contributions for krobbus over the last year"
+        className="grid w-full"
+        style={{
+          minWidth,
+          columnGap: CELL_GAP,
+          rowGap: CELL_GAP,
+          gridTemplateColumns: `${LABEL_COLUMN}px repeat(${weeks.length}, minmax(${MIN_CELL}px, 1fr))`,
+          gridTemplateRows: '12px repeat(7, auto)',
+        }}
+      >
+        <span
           aria-hidden="true"
-          className="grid shrink-0 gap-1 text-[9px] leading-[10px] text-[var(--muted)]"
-          style={{ gridTemplateRows: '12px repeat(7, 10px)' }}
-        >
-          <span></span>
-          <span></span>
-          <span>Mon</span>
-          <span></span>
-          <span>Wed</span>
-          <span></span>
-          <span>Fri</span>
-          <span></span>
-        </div>
-        <div
-          role="img"
-          aria-label="GitHub contributions for krobbus over the last year"
-          className="grid gap-1"
-          style={{ gridTemplateColumns: `repeat(${weeks.length}, 10px)`, gridTemplateRows: '12px repeat(7, 10px)' }}
-        >
-          {[...monthLabels.entries()].map(([weekIndex, label]) => (
+          className="sticky left-0 z-10 bg-[var(--bg)]"
+          style={{ gridColumn: 1, gridRow: 1 }}
+        />
+
+        {DAY_LABELS.map((label, index) => (
+          <span
+            key={`day-${index}`}
+            aria-hidden="true"
+            className="sticky left-0 z-10 flex items-center bg-[var(--bg)] text-[9px] leading-none text-[var(--muted)]"
+            style={{ gridColumn: 1, gridRow: index + 2 }}
+          >
+            {label}
+          </span>
+        ))}
+
+        {[...monthLabels.entries()].map(([weekIndex, label]) => (
+          <span
+            key={`${weekIndex}-${label}`}
+            className="whitespace-nowrap text-[9px] leading-3 text-[var(--muted)]"
+            style={{ gridColumn: weekIndex + 2, gridRow: 1 }}
+            aria-hidden="true"
+          >
+            {label}
+          </span>
+        ))}
+
+        {weeks.flatMap((week, weekIndex) =>
+          week.map((day, dayIndex) => {
+            const cellStyle = {
+              gridColumn: weekIndex + 2,
+              gridRow: dayIndex + 2,
+            };
+            if (!day) {
+              return <span key={`empty-${weekIndex}-${dayIndex}`} style={cellStyle} aria-hidden="true" />;
+            }
+
+            const date = new Date(`${day.date}T00:00:00Z`).toLocaleDateString(undefined, {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+              timeZone: 'UTC',
+            });
+            const countText = `${day.count} contribution${day.count === 1 ? '' : 's'} on ${date}`;
+
+            return (
               <span
-                key={`${weekIndex}-${label}`}
-                className="whitespace-nowrap text-[9px] leading-3 text-[var(--muted)]"
-                style={{ gridColumn: weekIndex + 1, gridRow: 1 }}
+                key={day.date}
+                title={countText}
+                className="aspect-square w-full rounded-[2px] border"
+                style={{
+                  ...cellStyle,
+                  backgroundColor:
+                    day.count === 0
+                      ? 'color-mix(in srgb, var(--fg) 16%, var(--bg))'
+                      : `var(--contribution-${day.level}, var(--contribution-1))`,
+                  borderColor: 'color-mix(in srgb, var(--fg) 12%, var(--bg))',
+                }}
                 aria-hidden="true"
-              >
-                {label}
-              </span>
-            ))}
-          {weeks.flatMap((week, weekIndex) =>
-            week.map((day, dayIndex) => {
-              const cellStyle = {
-                gridColumn: weekIndex + 1,
-                gridRow: dayIndex + 2,
-              };
-              if (!day) {
-                return <span key={`empty-${weekIndex}-${dayIndex}`} style={cellStyle} aria-hidden="true" />;
-              }
-
-              const date = new Date(`${day.date}T00:00:00Z`).toLocaleDateString(undefined, {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-                timeZone: 'UTC',
-              });
-              const countText = `${day.count} contribution${day.count === 1 ? '' : 's'} on ${date}`;
-
-              return (
-                <span
-                  key={day.date}
-                  title={countText}
-                  className="size-2.5 rounded-[2px] border"
-                  style={{
-                    ...cellStyle,
-                    backgroundColor:
-                      day.count === 0
-                        ? 'color-mix(in srgb, var(--fg) 16%, var(--bg))'
-                        : `var(--contribution-${day.level}, var(--contribution-1))`,
-                    borderColor: 'color-mix(in srgb, var(--fg) 12%, var(--bg))',
-                  }}
-                  aria-hidden="true"
-                />
-              );
-            }),
-          )}
-        </div>
+              />
+            );
+          }),
+        )}
       </div>
     </div>
   );
@@ -200,11 +245,11 @@ export default function Home() {
         </div>
 
         <div className="space-y-1 px-2 text-center sm:px-4">
-          <p className="font-sans text-2xl font-bold">1-2</p>
+          <p className="font-sans text-2xl font-bold">1 - 2</p>
           <p className="text-xs uppercase tracking-wider text-[var(--muted)]">Cups of coffee / day</p>
         </div>
 
-        <div className="col-span-3 mt-5 border-t border-[var(--border)] pt-5">
+        <div className="col-span-3 mt-5 min-w-0 border-t border-[var(--border)] pt-5">
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-xs uppercase tracking-wider text-[var(--muted)]">
               GitHub Contributions
